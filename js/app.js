@@ -595,3 +595,83 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") modal.classList.add("hidden");
   });
 });
+
+// ============================================================================
+// TỰ ĐỘNG CHUẨN HÓA QUY TẮC ĐẶT DẤU KIỂU CŨ (HOÁ, KHOÁ, HOÀ, THUỶ...)
+// ============================================================================
+function toOldVietnameseTone(str) {
+  if (typeof str !== "string" || !str) return str;
+  const endSyl = "(?![a-zA-ZÀ-ỹĐđ])";
+  return str
+    // Nhóm -oa (Hóa -> Hoá, Khóa -> Khoá, hòa -> hoà, thỏa -> thoả...)
+    .replace(new RegExp("óa" + endSyl, "g"), "oá")
+    .replace(new RegExp("òa" + endSyl, "g"), "oà")
+    .replace(new RegExp("ỏa" + endSyl, "g"), "oả")
+    .replace(new RegExp("õa" + endSyl, "g"), "oã")
+    .replace(new RegExp("ọa" + endSyl, "g"), "oạ")
+    .replace(new RegExp("ÓA" + endSyl, "g"), "OÁ")
+    .replace(new RegExp("ÒA" + endSyl, "g"), "OÀ")
+    .replace(new RegExp("ỎA" + endSyl, "g"), "OẢ")
+    .replace(new RegExp("ÕA" + endSyl, "g"), "OÃ")
+    .replace(new RegExp("ỌA" + endSyl, "g"), "OẠ")
+    // Nhóm -oe (khỏe -> khoẻ, xòe -> xoè...)
+    .replace(new RegExp("óe" + endSyl, "g"), "oé")
+    .replace(new RegExp("òe" + endSyl, "g"), "oè")
+    .replace(new RegExp("ỏe" + endSyl, "g"), "oẻ")
+    .replace(new RegExp("õe" + endSyl, "g"), "oẽ")
+    .replace(new RegExp("ọe" + endSyl, "g"), "oẹ")
+    .replace(new RegExp("ÓE" + endSyl, "g"), "OÉ")
+    .replace(new RegExp("ÒE" + endSyl, "g"), "OÈ")
+    .replace(new RegExp("ỎE" + endSyl, "g"), "OẺ")
+    .replace(new RegExp("ÕE" + endSyl, "g"), "OẼ")
+    .replace(new RegExp("ỌE" + endSyl, "g"), "OẸ")
+    // Nhóm -uy (thủy -> thuỷ, túy -> tuý... giữ nguyên quý/quy vì đi sau q)
+    .replace(new RegExp("(^|[^qQ])úy" + endSyl, "g"), "$1uý")
+    .replace(new RegExp("(^|[^qQ])ùy" + endSyl, "g"), "$1uỳ")
+    .replace(new RegExp("(^|[^qQ])ủy" + endSyl, "g"), "$1uỷ")
+    .replace(new RegExp("(^|[^qQ])ũy" + endSyl, "g"), "$1uỹ")
+    .replace(new RegExp("(^|[^qQ])ụy" + endSyl, "g"), "$1uỵ")
+    .replace(new RegExp("(^|[^qQ])ÚY" + endSyl, "g"), "$1UÝ")
+    .replace(new RegExp("(^|[^qQ])ÙY" + endSyl, "g"), "$1UỲ")
+    .replace(new RegExp("(^|[^qQ])ỦY" + endSyl, "g"), "$1UỶ")
+    .replace(new RegExp("(^|[^qQ])ŨY" + endSyl, "g"), "$1UỸ")
+    .replace(new RegExp("(^|[^qQ])ỤY" + endSyl, "g"), "$1UỴ");
+}
+
+function convertObjectStrings(obj, keyName = "") {
+  if (typeof obj === "string") {
+    if (/^(link|logo|fanpage|email|ma_|updated_at)/i.test(keyName)) return obj;
+    return toOldVietnameseTone(obj);
+  }
+  if (Array.isArray(obj)) return obj.map(item => convertObjectStrings(item, keyName));
+  if (obj && typeof obj === "object") {
+    const out = {};
+    for (const [k, v] of Object.entries(obj)) out[k] = convertObjectStrings(v, k);
+    return out;
+  }
+  return obj;
+}
+
+function convertStaticDomToOldTone() {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    const parentTag = node.parentElement && node.parentElement.tagName;
+    if (parentTag !== "SCRIPT" && parentTag !== "STYLE") {
+      const converted = toOldVietnameseTone(node.nodeValue);
+      if (converted !== node.nodeValue) node.nodeValue = converted;
+    }
+  }
+  document.querySelectorAll("[placeholder]").forEach(el => {
+    el.setAttribute("placeholder", toOldVietnameseTone(el.getAttribute("placeholder")));
+  });
+}
+
+const _originalRenderAll = renderAll;
+renderAll = function () {
+  if (state.rawData) state.rawData = convertObjectStrings(state.rawData);
+  _originalRenderAll();
+  convertStaticDomToOldTone();
+};
+
+document.addEventListener("DOMContentLoaded", convertStaticDomToOldTone);
