@@ -856,29 +856,29 @@ function renderVanBanTab() {
 // 4. LẮNG NGHE BỘ LỌC & HÀM TIỆN ÍCH
 // ==========================================
 function setupFilters() {
-  document.getElementById("tb-filter-cat").addEventListener("change", renderThongBaoFull);
-  document.getElementById("tb-search").addEventListener("input", renderThongBaoFull);
+  document.getElementById("tb-filter-cat")?.addEventListener("change", renderThongBaoFull);
+  document.getElementById("tb-search")?.addEventListener("input", renderThongBaoFull);
 
-  document.getElementById("lich-filter-cat").addEventListener("change", renderThoiGianBieuFull);
-  document.getElementById("lich-search").addEventListener("input", renderThoiGianBieuFull);
+  document.getElementById("lich-filter-cat")?.addEventListener("change", renderThoiGianBieuFull);
+  document.getElementById("lich-search")?.addEventListener("input", renderThoiGianBieuFull);
 
-  document.getElementById("dt-filter-year").addEventListener("change", renderDeTaiTable);
-  document.getElementById("dt-filter-dept").addEventListener("change", renderDeTaiTable);
-  document.getElementById("dt-filter-status").addEventListener("change", renderDeTaiTable);
-  document.getElementById("dt-filter-award").addEventListener("change", renderDeTaiTable);
-  document.getElementById("dt-search").addEventListener("input", renderDeTaiTable);
+  document.getElementById("dt-filter-year")?.addEventListener("change", renderDeTaiTable);
+  document.getElementById("dt-filter-dept")?.addEventListener("change", renderDeTaiTable);
+  document.getElementById("dt-filter-status")?.addEventListener("change", renderDeTaiTable);
+  document.getElementById("dt-filter-award")?.addEventListener("change", renderDeTaiTable);
+  document.getElementById("dt-search")?.addEventListener("input", renderDeTaiTable);
 
-  document.getElementById("gt-filter-year").addEventListener("change", renderGiaiThuongTab);
-  document.getElementById("gt-filter-level").addEventListener("change", renderGiaiThuongTab);
-  document.getElementById("gt-search").addEventListener("input", renderGiaiThuongTab);
+  document.getElementById("gt-filter-year")?.addEventListener("change", renderGiaiThuongTab);
+  document.getElementById("gt-filter-level")?.addEventListener("change", renderGiaiThuongTab);
+  document.getElementById("gt-search")?.addEventListener("input", renderGiaiThuongTab);
 
-  document.getElementById("sem-filter-status").addEventListener("change", renderSeminarTab);
-  document.getElementById("sem-search").addEventListener("input", renderSeminarTab);
+  document.getElementById("sem-filter-status")?.addEventListener("change", renderSeminarTab);
+  document.getElementById("sem-search")?.addEventListener("input", renderSeminarTab);
 
-  document.getElementById("vb-filter-cat").addEventListener("change", renderVanBanTab);
-  document.getElementById("vb-search").addEventListener("input", renderVanBanTab);
+  document.getElementById("vb-filter-cat")?.addEventListener("change", renderVanBanTab);
+  document.getElementById("vb-search")?.addEventListener("input", renderVanBanTab);
 
-  document.getElementById("detail-modal").addEventListener("click", (e) => {
+  document.getElementById("detail-modal")?.addEventListener("click", (e) => {
     if (e.target.id === "detail-modal") closeModal();
   });
 }
