@@ -7,7 +7,7 @@
  * ============================================================================
  */
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzzIB36p5__18W9nqnAO1izKUw9a7SAzu-Ai1zMYvPPEN-_s12PAGwCdXxHxr-ZRytlfw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz-y0kUxEFygO4PxHAw7Z5N06nOGS57TMMr-t6XMjH6PmjNFHDXmQlA-wCwag1IUko6dg/exec";
 const CACHE_KEY = "hcmue_chem_nckh_cache_v3";
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
