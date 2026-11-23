@@ -645,9 +645,9 @@
           </div>
 
           <div class="md:col-span-3">
-            <select id="topics-filter-dept" aria-label="Lọc bộ môn"
+            <select id="topics-filter-dept" aria-label="Lọc lĩnh vực"
               class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 focus:bg-white focus:outline-none focus:border-[#124874]">
-              <option value="ALL">Tất cả Bộ môn</option>
+              <option value="ALL">Tất cả Lĩnh vực</option>
             </select>
           </div>
 
@@ -2422,7 +2422,7 @@
       if (deptSel) {
         const deptsSorted = Array.from(deptSet).sort();
         deptSel.innerHTML =
-          `<option value="ALL">Tất cả Bộ môn</option>` +
+          `<option value="ALL">Tất cả Lĩnh vực</option>` +
           deptsSorted.map((d) => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
       }
     }
@@ -2557,7 +2557,7 @@
               <thead class="bg-slate-100 text-[#124874] text-xs uppercase border-b border-slate-200">
                 <tr>
                   <th class="px-4 py-3 font-extrabold">Niên khoá</th>
-                  <th class="px-4 py-3 font-extrabold">Tên đề tài &amp; Bộ môn</th>
+                  <th class="px-4 py-3 font-extrabold">Tên đề tài &amp; Lĩnh vực</th>
                   <th class="px-4 py-3 font-extrabold">Sinh viên thực hiện</th>
                   <th class="px-4 py-3 font-extrabold">GVHD</th>
                   <th class="px-4 py-3 font-extrabold">Thành tích &amp; Công bố</th>
@@ -3081,7 +3081,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs sm:text-sm">
           <div><span class="text-slate-500">Niên khoá:</span> <strong class="text-[#124874]">${escapeHtml(nk)}</strong></div>
           <div><span class="text-slate-500">Mã số đề tài:</span> <strong class="text-[#124874]">${escapeHtml(code)}</strong></div>
-          <div><span class="text-slate-500">Bộ môn / Lĩnh vực:</span> <strong class="text-slate-900">${escapeHtml(dept)}</strong></div>
+          <div><span class="text-slate-500">Lĩnh vực:</span> <strong class="text-slate-900">${escapeHtml(dept)}</strong></div>
           <div><span class="text-slate-500">Trạng thái:</span> <strong class="text-emerald-700">${escapeHtml(status)}</strong></div>
           <div class="sm:col-span-2"><span class="text-slate-500">Giảng viên hướng dẫn:</span> <strong class="text-[#124874]">${escapeHtml(advisor)}</strong></div>
         </div>
