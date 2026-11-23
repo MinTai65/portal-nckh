@@ -1,7 +1,7 @@
 // =========================================================================
 // CẤU HÌNH KẾT NỐI API GOOGLE APPS SCRIPT
 // =========================================================================
-const API_URL = "https://script.google.com/macros/s/AKfycbz89h-27T4L45tL1uS3O87q-w2f5h42wR8w5s/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz-y0kUxEFygO4PxHAw7Z5N06nOGS57TMMr-t6XMjH6PmjNFHDXmQlA-wCwag1IUko6dg/exec";
 
 // Biến lưu trữ dữ liệu toàn cục
 let globalData = {
