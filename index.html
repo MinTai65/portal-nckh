@@ -3,674 +3,310 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cổng thông tin Nghiên cứu Khoa học | Khoa Hoá học - HCMUE</title>
+  <title>Cổng Thông Tin Nghiên Cứu Khoa Học | Khoa Hoá học - HCMUE</title>
 
-  <!-- Google Fonts: Be Vietnam Pro & JetBrains Mono -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS & Font Awesome -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            hcmue: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              200: '#bfdbfe',
-              600: '#1d4ed8',
-              700: '#1e40af',
-              800: '#163567',
-              900: '#0f254a',
-            }
-          }
-        }
-      }
-    };
-  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-  <!-- Chart.js & Lucide Icons -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
-  <style>
-    body {
-      font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
-      background-color: #f8fafc;
-      color: #0f172a;
-    }
-
-    /* Thanh thông báo chạy (Ticker) */
-    @keyframes tickerScroll {
-      0% { transform: translateX(0%); }
-      100% { transform: translateX(-50%); }
-    }
-    .ticker-track {
-      display: inline-flex;
-      white-space: nowrap;
-      animation: tickerScroll 34s linear infinite;
-    }
-    .ticker-wrapper:hover .ticker-track {
-      animation-play-state: paused;
-    }
-
-    /* Thanh cuộn tinh gọn cho vùng cuộn tự động */
-    .auto-scroll-box {
-      scrollbar-width: thin;
-      scrollbar-color: #cbd5e1 transparent;
-    }
-    .auto-scroll-box::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-    .auto-scroll-box::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .auto-scroll-box::-webkit-scrollbar-thumb {
-      background-color: #cbd5e1;
-      border-radius: 9999px;
-    }
-    .auto-scroll-box::-webkit-scrollbar-thumb:hover {
-      background-color: #94a3b8;
-    }
-
-    /* Hiệu ứng chuyển tab / modal */
-    .modal-backdrop {
-      backdrop-filter: blur(4px);
-      background-color: rgba(15, 23, 42, 0.55);
-    }
-
-    /* Lưới lịch tháng */
-    .calendar-month-grid {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-    }
-
-    /* Skeleton loading */
-    .skeleton {
-      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite;
-    }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-  </style>
+  <!-- Custom HCMUE Styles -->
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="antialiased selection:bg-blue-100 selection:text-blue-900">
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-[#124874] selection:text-white">
 
-  <!-- Thanh thông báo chạy (Ticker) -->
-  <div id="ticker-bar" class="hidden bg-amber-50 border-b border-amber-200/80 text-amber-950 text-xs sm:text-sm py-2 overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-3">
-      <span class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white shadow-xs">
-        <i data-lucide="megaphone" class="w-3.5 h-3.5"></i>
-        TIN MỚI
-      </span>
-      <div class="ticker-wrapper overflow-hidden flex-1 relative">
-        <div id="ticker-content" class="ticker-track font-medium text-amber-900"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Header (Đã loại bỏ nút Đăng ký đề tài trên Header) -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16 sm:h-20 gap-4">
-        <!-- Logo & Định danh đơn vị -->
-        <a href="#" class="flex items-center gap-3 sm:gap-3.5 min-w-0 group">
-          <div id="header-logo-container" class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-hcmue-800 text-white flex items-center justify-center shrink-0 shadow-sm overflow-hidden border border-slate-200">
-            <svg class="w-7 h-7 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-              <path d="M9 3h6M10 3v5.5L4.5 18A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-3L14 8.5V3" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M7.5 14h9" stroke-linecap="round"/>
-            </svg>
+  <!-- TOP NAVIGATION -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <a href="#" class="flex items-center gap-3 min-w-0">
+        <img id="header-logo" src="" alt="Logo Khoa Hoá học HCMUE" class="w-10 h-10 object-contain hidden shrink-0" />
+        <div class="min-w-0">
+          <div id="header-school" class="text-[10px] sm:text-xs font-semibold tracking-wide text-slate-500 truncate">
+            TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH
           </div>
-          <div class="min-w-0">
-            <p id="cfg-ten-truong" class="text-[11px] sm:text-xs font-semibold tracking-wider text-slate-500 uppercase truncate">
-              TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH
-            </p>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span id="cfg-ten-khoa" class="text-sm sm:text-base font-extrabold text-hcmue-800 tracking-tight">
-                KHOA HOÁ HỌC
-              </span>
-              <span class="hidden md:inline-block text-slate-300">|</span>
-              <span id="cfg-tieu-de-cong" class="hidden md:inline-block text-sm font-semibold text-blue-700 truncate">
-                CỔNG THÔNG TIN NGHIÊN CỨU KHOA HỌC
-              </span>
-            </div>
+          <div id="header-faculty" class="text-sm sm:text-base font-extrabold text-[#124874] truncate">
+            KHOA HOÁ HỌC
           </div>
-        </a>
-
-        <!-- Menu điều hướng chính -->
-        <nav class="hidden lg:flex items-center gap-1 xl:gap-2 text-sm font-semibold text-slate-600">
-          <a href="#tong-quan" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Tổng quan</a>
-          <a href="#thong-bao-su-kien" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Thông báo &amp; Seminar</a>
-          <a href="#thoi-gian-bieu" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Thời gian biểu</a>
-          <a href="#danh-muc-de-tai" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Danh mục đề tài</a>
-          <a href="#van-ban-bieu-mau" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Văn bản &amp; Biểu mẫu</a>
-        </nav>
-
-        <!-- Nút đồng bộ dữ liệu & Menu mobile -->
-        <div class="flex items-center gap-2 shrink-0">
-          <button id="btn-refresh-data" type="button" title="Đồng bộ dữ liệu mới nhất từ hệ thống"
-            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200/80 transition">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Đồng bộ</span>
-          </button>
-
-          <button id="btn-mobile-menu" type="button" aria-label="Mở menu"
-            class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 border border-slate-200">
-            <i data-lucide="menu" class="w-5 h-5"></i>
-          </button>
         </div>
-      </div>
+      </a>
 
-      <!-- Mobile Navigation Drawer -->
-      <div id="mobile-menu" class="hidden lg:hidden pb-4 pt-2 border-t border-slate-100 space-y-1 text-sm font-semibold text-slate-700">
-        <a href="#tong-quan" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Tổng quan &amp; Thống kê</a>
-        <a href="#thong-bao-su-kien" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Thông báo &amp; Seminar</a>
-        <a href="#thoi-gian-bieu" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Thời gian biểu</a>
-        <a href="#danh-muc-de-tai" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Danh mục đề tài</a>
-        <a href="#van-ban-bieu-mau" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Văn bản &amp; Biểu mẫu</a>
-      </div>
+      <!-- Desktop Menu -->
+      <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-700">
+        <a href="#cong-tuong-tac" class="hover:text-[#124874] transition">Cổng tương tác</a>
+        <a href="#thong-bao" class="hover:text-[#124874] transition">Thông báo & Lịch trình</a>
+        <a href="#seminar-hoi-nghi" class="hover:text-[#124874] transition">Seminar & Hội nghị</a>
+        <a href="#tra-cuu-de-tai" class="hover:text-[#124874] transition">Tra cứu đề tài</a>
+        <a href="#van-ban-bieu-mau" class="hover:text-[#124874] transition">Văn bản & Biểu mẫu</a>
+      </nav>
+
+      <button id="mobile-menu-btn" type="button" aria-label="Mở menu" class="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-slate-100 px-4 py-3 space-y-2 text-sm font-semibold text-slate-700">
+      <a href="#cong-tuong-tac" class="block py-1.5 hover:text-[#124874]">Cổng tương tác</a>
+      <a href="#thong-bao" class="block py-1.5 hover:text-[#124874]">Thông báo & Lịch trình</a>
+      <a href="#seminar-hoi-nghi" class="block py-1.5 hover:text-[#124874]">Seminar & Hội nghị</a>
+      <a href="#tra-cuu-de-tai" class="block py-1.5 hover:text-[#124874]">Tra cứu đề tài</a>
+      <a href="#van-ban-bieu-mau" class="block py-1.5 hover:text-[#124874]">Văn bản & Biểu mẫu</a>
     </div>
   </header>
 
-  <!-- Cảnh báo trạng thái tải / lỗi kết nối -->
-  <div id="status-banner" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-    <div id="status-banner-inner" class="rounded-xl p-4 text-sm flex items-center justify-between gap-3 border"></div>
-  </div>
-
-  <!-- Hero Banner & Cổng tương tác động -->
-  <section class="relative overflow-hidden bg-gradient-to-br from-hcmue-900 via-hcmue-800 to-blue-900 text-white">
-    <!-- Hoạ tiết phân tử nền -->
-    <div class="absolute inset-0 opacity-10 pointer-events-none"
-      style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 24px 24px;"></div>
-
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+  <!-- HERO BANNER -->
+  <section class="hero-gradient text-white relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative z-10">
       <div class="max-w-3xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-amber-300 text-xs font-bold tracking-wide uppercase mb-4">
-          <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>
-          <span id="cfg-banner-nhan-phu">HOẠT ĐỘNG KHOA HỌC &amp; CÔNG NGHỆ</span>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/25 text-xs font-semibold mb-4">
+          <span class="w-2 h-2 rounded-full bg-[#CF373D]"></span>
+          <span>Hệ thống quản trị học thuật & Dữ liệu NCKH mở</span>
         </div>
-
-        <h1 id="cfg-banner-tieu-de" class="text-2xl sm:text-4xl lg:text-[40px] font-extrabold tracking-tight leading-tight mb-4">
-          Cổng thông tin Nghiên cứu Khoa học Sinh viên – Khoa Hoá học
+        <h1 id="header-title" class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+          CỔNG THÔNG TIN NGHIÊN CỨU KHOA HỌC
         </h1>
-
-        <p id="cfg-banner-mo-ta" class="text-sm sm:text-base text-blue-100/90 leading-relaxed mb-6">
-          Hệ thống quản lý, tra cứu dữ liệu đề tài nghiên cứu khoa học, công bố quốc tế, lịch tập huấn – hội nghị học thuật và biểu mẫu dành cho sinh viên, giảng viên Khoa Hoá học.
+        <p id="header-subtitle" class="mt-3 text-sm sm:text-base text-blue-100 leading-relaxed">
+          Kênh thông tin chính thức phục vụ hoạt động Nghiên cứu Khoa học Sinh viên, Chuyên đề học thuật và Tra cứu công trình nghiên cứu tại Khoa Hoá học, Trường Đại học Sư phạm TP. Hồ Chí Minh.
         </p>
-
-        <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
-          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white/10 border border-white/15 text-blue-100 font-medium">
-            <i data-lucide="database" class="w-4 h-4 text-sky-300"></i>
-            Dữ liệu giai đoạn: <strong id="cfg-thong-ke-giai-doan" class="text-white ml-1">2019 – 2026</strong>
+        <div class="mt-5">
+          <span id="sync-status" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/90 text-[#124874]">
+            Đang khởi tạo kết nối...
           </span>
-          <a href="#danh-muc-de-tai" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold transition shadow-sm">
-            <i data-lucide="search" class="w-4 h-4"></i>
-            Tra cứu danh mục đề tài
-          </a>
         </div>
       </div>
 
-      <!-- Cổng tương tác động (Render từ CMS_Cong_Tuong_Tac) -->
-      <div id="interactive-portals-grid" class="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-        <!-- Skeleton cards khi đang tải -->
-        <div class="rounded-2xl bg-white/10 p-5 h-44 skeleton"></div>
-        <div class="rounded-2xl bg-white/10 p-5 h-44 skeleton"></div>
-        <div class="rounded-2xl bg-white/10 p-5 h-44 skeleton"></div>
+      <!-- Quick Metrics -->
+      <div class="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-4">
+          <div class="text-xs text-blue-100 font-medium">Tổng số đề tài lưu trữ</div>
+          <div id="stat-total-topics" class="mt-1 text-2xl sm:text-3xl font-extrabold">—</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-4">
+          <div class="text-xs text-blue-100 font-medium">Số niên khóa thống kê</div>
+          <div id="stat-total-years" class="mt-1 text-2xl sm:text-3xl font-extrabold">—</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-4">
+          <div class="text-xs text-blue-100 font-medium">Đề tài đạt giải các cấp</div>
+          <div id="stat-total-awards" class="mt-1 text-2xl sm:text-3xl font-extrabold">—</div>
+        </div>
+        <div class="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-4">
+          <div class="text-xs text-blue-100 font-medium">Đề tài có bài báo khoa học</div>
+          <div id="stat-total-pubs" class="mt-1 text-2xl sm:text-3xl font-extrabold">—</div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-14">
 
-    <!-- SECTION 1: TỔNG QUAN KPI & BIỂU ĐỒ THỐNG KÊ -->
-    <section id="tong-quan" class="scroll-mt-24 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Số liệu tổng hợp</span>
-          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Tổng quan Hoạt động Nghiên cứu Khoa học</h2>
-        </div>
-        <p class="text-xs text-slate-500">Tự động cập nhật từ cơ sở dữ liệu Khoa Hoá học</p>
+    <!-- SECTION 1: CỔNG TƯƠNG TÁC -->
+    <section id="cong-tuong-tac" class="scroll-mt-20">
+      <div class="mb-6">
+        <h2 class="text-xl sm:text-2xl font-extrabold text-[#124874]">Cổng Tương Tác & Đăng Ký Trực Tuyến</h2>
+        <p class="text-sm text-slate-600 mt-1">Các kênh đăng ký đề tài, nộp hồ sơ tiến độ và phân hệ dành cho Giảng viên – Sinh viên.</p>
       </div>
-
-      <!-- 4 Thẻ KPI -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Tổng số đề tài</span>
-            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
-              <i data-lucide="folder-kanban" class="w-5 h-5"></i>
-            </div>
-          </div>
-          <div id="kpi-total-projects" class="text-2xl sm:text-3xl font-extrabold text-slate-900">—</div>
-          <p id="kpi-total-projects-sub" class="text-xs text-slate-500 mt-1.5">Đang tải dữ liệu niên khoá...</p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Đề tài đạt giải</span>
-            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-              <i data-lucide="award" class="w-5 h-5"></i>
-            </div>
-          </div>
-          <div id="kpi-total-awards" class="text-2xl sm:text-3xl font-extrabold text-slate-900">—</div>
-          <p id="kpi-total-awards-sub" class="text-xs text-slate-500 mt-1.5">Cấp Khoa, Trường &amp; Bộ</p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Công bố khoa học</span>
-            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <i data-lucide="book-open-check" class="w-5 h-5"></i>
-            </div>
-          </div>
-          <div id="kpi-total-publications" class="text-2xl sm:text-3xl font-extrabold text-slate-900">—</div>
-          <p id="kpi-total-publications-sub" class="text-xs text-slate-500 mt-1.5">Tạp chí quốc tế &amp; trong nước</p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">GVHD &amp; Sinh viên</span>
-            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
-              <i data-lucide="users" class="w-5 h-5"></i>
-            </div>
-          </div>
-          <div id="kpi-total-people" class="text-2xl sm:text-3xl font-extrabold text-slate-900">—</div>
-          <p id="kpi-total-people-sub" class="text-xs text-slate-500 mt-1.5">Lượt tham gia nghiên cứu</p>
-        </div>
-      </div>
-
-      <!-- 2 Biểu đồ Chart.js -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        <div class="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-xs">
-          <div class="flex items-center justify-between gap-2 mb-4">
-            <div>
-              <h3 class="text-base font-bold text-slate-900">Biến động số lượng đề tài &amp; giải thưởng theo niên khoá</h3>
-              <p class="text-xs text-slate-500">Thống kê tổng hợp các niên khoá</p>
-            </div>
-          </div>
-          <div class="relative h-64 sm:h-72">
-            <canvas id="chart-yearly"></canvas>
-          </div>
-        </div>
-
-        <div class="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-xs">
-          <div class="flex items-center justify-between gap-2 mb-4">
-            <div>
-              <h3 class="text-base font-bold text-slate-900">Phân bố theo Bộ môn / Lĩnh vực</h3>
-              <p class="text-xs text-slate-500">Cơ cấu chuyên ngành nghiên cứu</p>
-            </div>
-            <select id="chart-dept-year-filter" aria-label="Lọc biểu đồ theo niên khoá"
-              class="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">Tất cả niên khoá</option>
-            </select>
-          </div>
-          <div class="relative h-64 sm:h-72">
-            <canvas id="chart-department"></canvas>
-          </div>
-        </div>
+      <div id="interactive-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Render động từ CMS_Cong_Tuong_Tac -->
       </div>
     </section>
 
-    <!-- SECTION 2: THÔNG BÁO NCKH & SEMINAR / HỘI NGHỊ (Thẻ tối giản + Cuộn dọc tự động) -->
-    <section id="thong-bao-su-kien" class="scroll-mt-24 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Tin tức &amp; Học thuật</span>
-          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Thông báo NCKH &amp; Seminar Khoa học</h2>
-        </div>
-        <p class="text-xs text-slate-500">Rê chuột vào danh sách để tạm dừng cuộn tự động • Nhấp vào thẻ để xem chi tiết</p>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Cột Thông báo NCKH -->
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden">
-          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-2 bg-slate-50/70">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
-                <i data-lucide="bell-ring" class="w-4 h-4"></i>
-              </div>
-              <div>
-                <h3 class="text-base font-bold text-slate-900">Thông báo NCKH</h3>
-                <p id="announcement-count-label" class="text-[11px] text-slate-500">Đang cập nhật...</p>
-              </div>
-            </div>
-            <button type="button" data-scroll-toggle="announcements-scroll"
-              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:text-blue-700 transition">
-              <i data-lucide="pause" class="w-3.5 h-3.5"></i>
-              <span>Tự cuộn</span>
-            </button>
+    <!-- SECTION 2: THÔNG BÁO & THỜI GIAN BIỂU -->
+    <section id="thong-bao" class="scroll-mt-20 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Cột trái: Thông báo -->
+      <div class="lg:col-span-7 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-[#124874]">Thông Báo Triển Khai NCKH</h2>
+            <p class="text-sm text-slate-600 mt-0.5">Kế hoạch, thông báo mới nhất từ Khoa và Phòng KHCN&MT.</p>
           </div>
-
-          <div id="announcements-scroll" class="auto-scroll-box p-4 sm:p-5 space-y-3 max-h-[430px] overflow-y-auto">
-            <div class="h-24 rounded-xl skeleton"></div>
-            <div class="h-24 rounded-xl skeleton"></div>
-          </div>
-        </div>
-
-        <!-- Cột Seminar & Hội nghị Khoa học -->
-        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden">
-          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-2 bg-slate-50/70">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-                <i data-lucide="presentation" class="w-4 h-4"></i>
-              </div>
-              <div>
-                <h3 class="text-base font-bold text-slate-900">Seminar &amp; Hội nghị Khoa học</h3>
-                <p id="seminar-count-label" class="text-[11px] text-slate-500">Đang cập nhật...</p>
-              </div>
-            </div>
-            <button type="button" data-scroll-toggle="seminars-scroll"
-              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:text-blue-700 transition">
-              <i data-lucide="pause" class="w-3.5 h-3.5"></i>
-              <span>Tự cuộn</span>
-            </button>
-          </div>
-
-          <div id="seminars-scroll" class="auto-scroll-box p-4 sm:p-5 space-y-3 max-h-[430px] overflow-y-auto">
-            <div class="h-24 rounded-xl skeleton"></div>
-            <div class="h-24 rounded-xl skeleton"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 3: THỜI GIAN BIỂU ĐA NGUỒN (Tuần / Tháng / Danh sách) -->
-    <section id="thoi-gian-bieu" class="scroll-mt-24 space-y-6">
-      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Kế hoạch &amp; Lịch trình tích hợp</span>
-          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Thời gian biểu Hoạt động NCKH</h2>
-          <p class="text-xs text-slate-500 mt-1">Đồng bộ tự động từ Lịch Khoa, Seminar/Hội nghị và các hạn mốc Thông báo</p>
-        </div>
-
-        <!-- Bộ điều khiển chế độ xem & lọc nguồn -->
-        <div class="flex flex-wrap items-center gap-2.5">
-          <select id="schedule-source-filter" aria-label="Lọc nguồn thời gian biểu"
-            class="text-xs sm:text-sm font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-700 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="ALL">Tất cả nguồn sự kiện</option>
-            <option value="LICH_KHOA">Lịch hoạt động NCKH</option>
-            <option value="SEMINAR">Seminar &amp; Hội nghị</option>
-            <option value="THONG_BAO">Hạn mốc Thông báo</option>
+          <select id="announcement-filter" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#124874]">
+            <option value="ALL">Tất cả phân loại</option>
           </select>
-
-          <div class="inline-flex rounded-xl bg-slate-200/80 p-1 text-xs sm:text-sm font-bold">
-            <button type="button" data-cal-view="month"
-              class="cal-view-btn px-3 py-1.5 rounded-lg bg-white text-hcmue-800 shadow-2xs transition">
-              Theo Tháng
-            </button>
-            <button type="button" data-cal-view="week"
-              class="cal-view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
-              Theo Tuần
-            </button>
-            <button type="button" data-cal-view="list"
-              class="cal-view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
-              Danh sách
-            </button>
-          </div>
+        </div>
+        <div id="announcements-list" class="space-y-4">
+          <!-- Render động từ CMS_ThongBao_NCKH -->
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
-        <!-- Thanh điều hướng thời gian của Lịch -->
-        <div class="px-4 sm:px-6 py-4 border-b border-slate-100 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-2">
-            <button id="cal-prev-btn" type="button" aria-label="Trước"
-              class="p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition">
-              <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </button>
-            <button id="cal-today-btn" type="button"
-              class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition">
-              Hôm nay
-            </button>
-            <button id="cal-next-btn" type="button" aria-label="Sau"
-              class="p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition">
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
-            <h3 id="cal-period-title" class="text-base sm:text-lg font-extrabold text-slate-900 ml-2">
-              Tháng 11, 2026
-            </h3>
-          </div>
-
-          <!-- Chú thích màu nguồn dữ liệu -->
-          <div class="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-600">
-            <span class="inline-flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Lịch Khoa
-            </span>
-            <span class="inline-flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> Seminar / Hội nghị
-            </span>
-            <span class="inline-flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span> Hạn mốc Thông báo
-            </span>
-          </div>
+      <!-- Cột phải: Thời gian biểu -->
+      <div id="thoi-gian-bieu" class="lg:col-span-5 space-y-4">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-[#124874]">Thời Gian Biểu & Mốc Tiến Độ</h2>
+          <p class="text-sm text-slate-600 mt-0.5">Lịch tập huấn, xét duyệt thuyết minh và nghiệm thu đề tài.</p>
         </div>
-
-        <!-- Vùng render nội dung Lịch (Month / Week / List) -->
-        <div id="calendar-container" class="p-3 sm:p-5">
-          <div class="h-64 rounded-xl skeleton"></div>
+        <div id="schedule-list" class="bg-slate-100/70 rounded-2xl p-5 border border-slate-200/80">
+          <!-- Render động từ CMS_ThoiGianBieu -->
         </div>
       </div>
     </section>
 
-    <!-- SECTION 4: DANH MỤC ĐỀ TÀI NCKH & BỘ LỌC ĐA CHIỀU -->
-    <section id="danh-muc-de-tai" class="scroll-mt-24 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+    <!-- SECTION 3: SEMINAR & HỘI NGHỊ KHOA HỌC -->
+    <section id="seminar-hoi-nghi" class="scroll-mt-20 space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Cơ sở dữ liệu công trình</span>
-          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Danh mục Đề tài Nghiên cứu Khoa học</h2>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-[#124874]">Seminar & Hội Nghị Khoa Học</h2>
+          <p class="text-sm text-slate-600 mt-1">Chuỗi chuyên đề học thuật, hội nghị sinh viên nghiên cứu khoa học và giao lưu quốc tế.</p>
         </div>
+        <select id="seminar-status-filter" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#124874]">
+          <option value="ALL">Tất cả trạng thái</option>
+          <option value="Sắp diễn ra">Sắp diễn ra</option>
+          <option value="Đã diễn ra">Đã diễn ra</option>
+        </select>
+      </div>
+      <div id="seminars-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Render động từ CMS_Seminar_HoiNghi -->
+      </div>
+    </section>
 
-        <button id="btn-export-csv" type="button"
-          class="self-start sm:self-auto inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition">
-          <i data-lucide="download" class="w-4 h-4"></i>
-          Xuất CSV danh sách đang lọc
-        </button>
+    <!-- SECTION 4: TRA CỨU CƠ SỞ DỮ LIỆU ĐỀ TÀI & THỐNG KÊ -->
+    <section id="tra-cuu-de-tai" class="scroll-mt-20 space-y-6">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-[#124874]">Cơ Sở Dữ Liệu Đề Tài SV NCKH</h2>
+        <p class="text-sm text-slate-600 mt-1">Tra cứu danh mục đề tài theo niên khóa, bộ môn, giảng viên hướng dẫn và thành tích đạt được.</p>
       </div>
 
-      <!-- Khung bộ lọc đa chiều -->
-      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-4">
+      <!-- Biểu đồ thống kê -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <h3 class="text-sm font-bold text-slate-800 mb-3">Số lượng đề tài theo Niên khóa</h3>
+          <div class="h-60">
+            <canvas id="chart-by-year"></canvas>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+          <h3 class="text-sm font-bold text-slate-800 mb-3">Phân bố đề tài theo Bộ môn / Lĩnh vực</h3>
+          <div class="h-60">
+            <canvas id="chart-by-field"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bộ lọc tìm kiếm -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
-          <!-- Ô tìm kiếm từ khoá -->
           <div class="md:col-span-5 relative">
-            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-            <input id="filter-search" type="text"
-              placeholder="Tìm tên đề tài, sinh viên, GVHD, từ khoá..."
-              class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input id="search-input" type="text" placeholder="Tìm tên đề tài, sinh viên, GVHD, từ khóa..."
+              class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#124874]" />
           </div>
-
-          <!-- Lọc Niên khoá -->
           <div class="md:col-span-2">
-            <select id="filter-year" aria-label="Lọc theo niên khoá"
-              class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">Tất cả niên khoá</option>
+            <select id="filter-year" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:border-[#124874]">
+              <option value="">Tất cả niên khóa</option>
             </select>
           </div>
-
-          <!-- Lọc Bộ môn / Lĩnh vực -->
           <div class="md:col-span-3">
-            <select id="filter-dept" aria-label="Lọc theo bộ môn hoặc lĩnh vực"
-              class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">Tất cả Bộ môn / Lĩnh vực</option>
+            <select id="filter-field" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:border-[#124874]">
+              <option value="">Tất cả bộ môn / lĩnh vực</option>
             </select>
           </div>
-
-          <!-- Lọc Giải thưởng -->
           <div class="md:col-span-2">
-            <select id="filter-award" aria-label="Lọc theo giải thưởng"
-              class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">Mọi giải thưởng</option>
-              <option value="ANY_AWARD">Có giải thưởng</option>
-              <option value="BO">Giải cấp Bộ</option>
-              <option value="TRUONG">Giải cấp Trường</option>
-              <option value="KHOA">Giải cấp Khoa</option>
+            <select id="filter-award" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:border-[#124874]">
+              <option value="">Mọi thành tích</option>
+              <option value="KHOA">Đạt giải cấp Khoa</option>
+              <option value="TRUONG">Đạt giải cấp Trường</option>
+              <option value="BO">Đạt giải cấp Bộ</option>
+              <option value="BAIBAO">Có bài báo khoa học</option>
             </select>
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
-          <div class="flex flex-wrap items-center gap-2.5">
-            <select id="filter-pub" aria-label="Lọc theo công bố khoa học"
-              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">Công bố khoa học: Tất cả</option>
-              <option value="ANY_PUB">Có công bố khoa học</option>
-              <option value="INTL">Bài báo quốc tế</option>
-              <option value="DOMESTIC">Bài báo trong nước</option>
-            </select>
-
-            <select id="filter-status" aria-label="Lọc theo trạng thái"
-              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="ALL">Trạng thái: Tất cả</option>
-            </select>
-
-            <button id="btn-reset-filters" type="button"
-              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-rose-700 hover:bg-rose-50 transition">
-              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-              Đặt lại
-            </button>
-          </div>
-
-          <div class="text-xs sm:text-sm text-slate-600">
-            Hiển thị <strong id="projects-match-count" class="text-hcmue-800">0</strong> đề tài phù hợp
-          </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+          <span id="topics-count-label" class="font-semibold text-slate-700">Đang tải danh mục đề tài...</span>
+          <button id="btn-reset-filters" type="button" class="text-[#CF373D] hover:underline font-semibold">
+            <i class="fa-solid fa-rotate-left mr-1"></i>Đặt lại bộ lọc
+          </button>
         </div>
-      </div>
 
-      <!-- Lưới thẻ đề tài -->
-      <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-        <div class="h-48 rounded-2xl skeleton"></div>
-        <div class="h-48 rounded-2xl skeleton"></div>
-        <div class="h-48 rounded-2xl skeleton"></div>
-        <div class="h-48 rounded-2xl skeleton"></div>
-      </div>
+        <!-- Desktop Table -->
+        <div class="hidden md:block overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3 font-bold">Niên khóa</th>
+                <th class="px-4 py-3 font-bold">Tên đề tài & Lĩnh vực</th>
+                <th class="px-4 py-3 font-bold">Nhóm sinh viên</th>
+                <th class="px-4 py-3 font-bold">GV hướng dẫn</th>
+                <th class="px-4 py-3 font-bold">Thành tích</th>
+                <th class="px-4 py-3 font-bold text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="topics-table-body" class="divide-y divide-slate-100 bg-white">
+              <!-- Render động -->
+            </tbody>
+          </table>
+        </div>
 
-      <!-- Phân trang / Xem thêm -->
-      <div id="projects-pagination" class="flex items-center justify-center gap-3 pt-2"></div>
+        <!-- Mobile Cards -->
+        <div id="topics-mobile-list" class="md:hidden space-y-3">
+          <!-- Render động -->
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination-controls" class="flex flex-wrap justify-center gap-1.5 pt-2"></div>
+      </div>
     </section>
 
     <!-- SECTION 5: VĂN BẢN & BIỂU MẪU -->
-    <section id="van-ban-bieu-mau" class="scroll-mt-24 space-y-6">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Tài nguyên &amp; Quy định</span>
-          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Văn bản Quy định &amp; Biểu mẫu SVNCKH</h2>
-        </div>
-        <p class="text-xs text-slate-500">Biểu mẫu chuẩn phục vụ đăng ký, thuyết minh và báo cáo tổng kết</p>
+    <section id="van-ban-bieu-mau" class="scroll-mt-20 space-y-5">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-[#124874]">Văn Bản Quy Định & Biểu Mẫu NCKH</h2>
+        <p class="text-sm text-slate-600 mt-1">Tải về các biểu mẫu đăng ký, thuyết minh, báo cáo tổng kết và quy định hiện hành.</p>
       </div>
-
-      <div id="documents-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="h-32 rounded-2xl skeleton"></div>
-        <div class="h-32 rounded-2xl skeleton"></div>
-        <div class="h-32 rounded-2xl skeleton"></div>
-        <div class="h-32 rounded-2xl skeleton"></div>
+      <div id="documents-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Render động từ CMS_VanBan_BieuMau -->
       </div>
     </section>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 mt-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-        <div class="md:col-span-6 space-y-3">
-          <div class="flex items-center gap-3">
-            <div id="footer-logo-container" class="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden shrink-0 border border-white/10">
-              <i data-lucide="atom" class="w-6 h-6 text-amber-400"></i>
-            </div>
-            <div>
-              <p id="footer-ten-truong" class="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH
-              </p>
-              <h3 id="footer-ten-khoa" class="text-base font-extrabold text-white">
-                KHOA HOÁ HỌC
-              </h3>
-            </div>
-          </div>
-          <p class="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md">
-            Cổng thông tin điện tử phục vụ quản lý, lưu trữ và lan toả hoạt động nghiên cứu khoa học của sinh viên và giảng viên Khoa Hoá học.
-          </p>
+  <!-- FOOTER -->
+  <footer class="bg-[#0f3a5e] text-blue-100 mt-16 border-t-4 border-[#CF373D]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+      <div>
+        <div id="footer-faculty" class="text-lg font-extrabold text-white">KHOA HOÁ HỌC</div>
+        <div id="footer-school" class="text-xs font-semibold text-blue-200 mt-0.5">
+          TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH
         </div>
-
-        <div class="md:col-span-6 space-y-2.5 text-xs sm:text-sm">
-          <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-3">Thông tin liên hệ</h4>
-          <p class="flex items-start gap-2.5">
-            <i data-lucide="map-pin" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
-            <span id="cfg-dia-chi">280 An Dương Vương, Phường Chợ Quán, Thành phố Hồ Chí Minh</span>
-          </p>
-          <p class="flex items-center gap-2.5">
-            <i data-lucide="phone" class="w-4 h-4 text-amber-400 shrink-0"></i>
-            <span id="cfg-dien-thoai">Đang cập nhật</span>
-          </p>
-          <p class="flex items-center gap-2.5">
-            <i data-lucide="mail" class="w-4 h-4 text-amber-400 shrink-0"></i>
-            <a id="cfg-email" href="mailto:khoahoahoc@hcmue.edu.vn" class="hover:text-white underline decoration-slate-600">khoahoahoc@hcmue.edu.vn</a>
-          </p>
-          <p class="flex items-center gap-2.5">
-            <i data-lucide="globe" class="w-4 h-4 text-amber-400 shrink-0"></i>
-            <a id="cfg-fanpage" href="#" target="_blank" rel="noopener noreferrer" class="hover:text-white underline decoration-slate-600">Fanpage Khoa Hoá học – HCMUE</a>
-          </p>
-        </div>
+        <p id="footer-address" class="mt-3 text-xs text-blue-200 leading-relaxed">
+          280 An Dương Vương, Phường Chợ Quán, Thành phố Hồ Chí Minh
+        </p>
       </div>
-
-      <div class="mt-8 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-        <p>© 2026 Khoa Hoá học – Trường Đại học Sư phạm Thành phố Hồ Chí Minh.</p>
-        <p>Vận hành trên nền tảng Google Workspace &amp; Apps Script CMS</p>
+      <div class="md:text-right flex flex-col justify-between text-xs space-y-2">
+        <div>
+          Liên hệ hỗ trợ học thuật:
+          <a id="footer-email" href="mailto:khoahoahoc@hcmue.edu.vn" class="text-white font-semibold underline">
+            khoahoahoc@hcmue.edu.vn
+          </a>
+        </div>
+        <div class="text-blue-300">
+          © 2026 Khoa Hoá học - Trường Đại học Sư phạm TP. Hồ Chí Minh.
+        </div>
       </div>
     </div>
   </footer>
 
-  <!-- MODAL 1: CHI TIẾT ĐỀ TÀI NCKH -->
-  <div id="project-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-6">
-    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span id="modal-proj-year" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-hcmue-800 text-white"></span>
-          <span id="modal-proj-code" class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-slate-200 text-slate-800"></span>
-          <span id="modal-proj-status" class="px-2.5 py-1 rounded-lg text-xs font-semibold"></span>
+  <!-- MODAL CHI TIẾT -->
+  <div id="detail-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4 bg-slate-50">
+        <div>
+          <span id="modal-badge" class="inline-block px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-100 text-[#124874]">
+            Chi tiết
+          </span>
+          <h3 id="modal-title" class="mt-1.5 text-base sm:text-lg font-extrabold text-slate-900 leading-snug"></h3>
         </div>
-        <button type="button" data-close-modal="project-modal" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button id="modal-close-btn" type="button" aria-label="Đóng" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/70">
+          <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-
-      <div id="modal-proj-body" class="p-5 sm:p-6 overflow-y-auto space-y-5 text-sm"></div>
-    </div>
-  </div>
-
-  <!-- MODAL 2: CHI TIẾT THÔNG BÁO -->
-  <div id="announcement-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-6">
-    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50">
-        <span id="modal-ann-badge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-800">Thông báo</span>
-        <button type="button" data-close-modal="announcement-modal" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div id="modal-ann-body" class="p-5 sm:p-6 overflow-y-auto space-y-4 text-sm"></div>
-    </div>
-  </div>
-
-  <!-- MODAL 3: CHI TIẾT SỰ KIỆN / SEMINAR / THỜI GIAN BIỂU -->
-  <div id="event-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-6">
-    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50">
-        <span id="modal-evt-badge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-100 text-blue-800">Sự kiện</span>
-        <button type="button" data-close-modal="event-modal" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <div id="modal-evt-body" class="p-5 sm:p-6 overflow-y-auto space-y-4 text-sm"></div>
+      <div id="modal-body" class="p-6 overflow-y-auto"></div>
     </div>
   </div>
 
