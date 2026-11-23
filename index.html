@@ -56,7 +56,10 @@
             <div class="flex justify-between items-center py-3 md:py-4">
                 <!-- Logo & Tên đơn vị -->
                 <div class="flex items-center space-x-3 md:space-x-4 cursor-pointer" onclick="switchTab('tong-quan')">
-                    <img id="header-logo" src="https://lh3.googleusercontent.com/d/1WIUE0aT_aE2Z_nU-hO5a6s_Q_8dY-32S" alt="Logo Khoa Hoá học" class="h-11 md:h-14 w-auto object-contain rounded">
+                    <img id="header-logo" src="https://lh3.googleusercontent.com/d/1WIUE0aT_aE2Z_nU-hO5a6s_Q_8dY-32S" alt="Logo Khoa Hoá học" onerror="this.style.display='none'; document.getElementById('header-logo-fallback').classList.remove('hidden');" class="h-11 md:h-14 w-auto object-contain rounded">
+                    <div id="header-logo-fallback" class="hidden w-11 h-11 md:w-12 md:h-12 rounded-xl bg-[#0B3C78] text-white flex items-center justify-center shadow-sm shrink-0">
+                        <i class="fa-solid fa-flask-vial text-lg md:text-xl"></i>
+                    </div>
                     <div>
                         <p id="header-ten-truong" class="text-[11px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider">TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH</p>
                         <h1 id="header-ten-khoa" class="text-base md:text-xl font-extrabold text-[#0B3C78] tracking-tight">KHOA HOÁ HỌC</h1>
@@ -106,9 +109,25 @@
     <!-- ===================================================================== -->
     <!-- MÀN HÌNH ĐANG TẢI DỮ LIỆU (LOADING SPINNER)                           -->
     <!-- ===================================================================== -->
-    <div id="loading-screen" class="flex-grow flex flex-col items-center justify-center py-20">
+    <div id="loading-screen" class="flex-grow flex flex-col items-center justify-center py-20 px-4">
         <div class="w-12 h-12 border-4 border-[#EBF3FA] border-t-[#0B3C78] rounded-full animate-spin mb-4"></div>
-        <p class="text-slate-600 font-medium text-sm">Đang đồng bộ dữ liệu nghiên cứu khoa học từ hệ thống Khoa Hoá học...</p>
+        <p class="text-slate-600 font-medium text-sm text-center">Đang đồng bộ dữ liệu nghiên cứu khoa học từ hệ thống Khoa Hoá học...</p>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MÀN HÌNH BÁO LỖI KẾT NỐI (ERROR SCREEN)                               -->
+    <!-- ===================================================================== -->
+    <div id="error-screen" class="hidden flex-grow flex flex-col items-center justify-center py-20 px-4">
+        <div class="max-w-md w-full bg-white border border-red-200 rounded-2xl p-6 text-center shadow-sm">
+            <div class="w-12 h-12 rounded-full bg-red-50 text-[#C8102E] flex items-center justify-center mx-auto mb-3">
+                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 mb-1">Không thể đồng bộ dữ liệu</h3>
+            <p id="error-message" class="text-xs text-slate-500 leading-relaxed mb-4">Vui lòng kiểm tra kết nối mạng hoặc quyền truy cập Web App.</p>
+            <button onclick="fetchPortalData()" class="inline-flex items-center gap-2 px-4 py-2 bg-[#0B3C78] hover:bg-[#072752] text-white text-xs font-semibold rounded-lg transition">
+                <i class="fa-solid fa-rotate-right"></i> Thử tải lại dữ liệu
+            </button>
+        </div>
     </div>
 
     <!-- ===================================================================== -->
@@ -546,7 +565,7 @@
                 </div>
 
                 <div id="modal-link-section" class="pt-2 hidden">
-                    <a id="modal-link-btn" href="#" target="_blank" class="inline-flex items-center justify-center w-full py-2.5 px-4 bg-[#0B3C78] hover:bg-[#072752] text-white text-sm font-semibold rounded-lg transition">
+                    <a id="modal-link-btn" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center w-full py-2.5 px-4 bg-[#0B3C78] hover:bg-[#072752] text-white text-sm font-semibold rounded-lg transition">
                         <i class="fa-solid fa-file-pdf mr-2"></i> Xem Quyết định công nhận / Kỷ yếu
                     </a>
                 </div>
@@ -590,7 +609,7 @@
                 </div>
 
                 <div id="article-modal-action-wrap" class="hidden pt-2 flex flex-wrap items-center justify-end gap-3">
-                    <a id="article-modal-action-btn" href="#" target="_blank" class="inline-flex items-center justify-center py-2.5 px-5 bg-[#0B3C78] hover:bg-[#072752] text-white text-sm font-semibold rounded-lg shadow transition">
+                    <a id="article-modal-action-btn" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center py-2.5 px-5 bg-[#0B3C78] hover:bg-[#072752] text-white text-sm font-semibold rounded-lg shadow transition">
                         <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i><span id="article-modal-action-text">Xem chi tiết / Đăng ký</span>
                     </a>
                 </div>
@@ -609,7 +628,7 @@
             </div>
             <div class="text-center md:text-right text-slate-400">
                 <p>Hệ thống Cổng thông tin Nghiên cứu Khoa học</p>
-                <p class="mt-1">Vận hành & Quản lý dữ liệu tập trung trực tuyến</p>
+                <p id="footer-updated" class="mt-1">Vận hành & Quản lý dữ liệu tập trung trực tuyến</p>
             </div>
         </div>
     </footer>
