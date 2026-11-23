@@ -1,639 +1,679 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cổng thông tin Nghiên cứu Khoa học - Khoa Hoá học | HCMUE</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        hcmueBlue: '#0B3C78',
-                        hcmueDarkBlue: '#072752',
-                        hcmueLightBlue: '#EBF3FA',
-                        hcmueRed: '#C8102E',
-                        hcmueGold: '#D97706'
-                    }
-                }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cổng thông tin Nghiên cứu Khoa học | Khoa Hoá học - HCMUE</title>
+
+  <!-- Google Fonts: Be Vietnam Pro & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            hcmue: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              800: '#163567',
+              900: '#0f254a',
             }
+          }
         }
-    </script>
-    <style>
-        html { scroll-behavior: smooth; }
-        .tab-content { display: none; animation: fadeIn 0.28s ease-out; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Thanh cuộn tinh gọn */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+      }
+    };
+  </script>
+
+  <!-- Chart.js & Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    /* Thanh thông báo chạy (Ticker) */
+    @keyframes tickerScroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-track {
+      display: inline-flex;
+      white-space: nowrap;
+      animation: tickerScroll 34s linear infinite;
+    }
+    .ticker-wrapper:hover .ticker-track {
+      animation-play-state: paused;
+    }
+
+    /* Thanh cuộn tinh gọn cho vùng cuộn tự động */
+    .auto-scroll-box {
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 transparent;
+    }
+    .auto-scroll-box::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .auto-scroll-box::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .auto-scroll-box::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .auto-scroll-box::-webkit-scrollbar-thumb:hover {
+      background-color: #94a3b8;
+    }
+
+    /* Hiệu ứng chuyển tab / modal */
+    .modal-backdrop {
+      backdrop-filter: blur(4px);
+      background-color: rgba(15, 23, 42, 0.55);
+    }
+
+    /* Lưới lịch tháng */
+    .calendar-month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    /* Skeleton loading */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen">
+<body class="antialiased selection:bg-blue-100 selection:text-blue-900">
 
-    <!-- ===================================================================== -->
-    <!-- 1. HEADER & THANH ĐIỀU HƯỚNG                                          -->
-    <!-- ===================================================================== -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center py-3 md:py-4">
-                <!-- Logo & Tên đơn vị -->
-                <div class="flex items-center space-x-3 md:space-x-4 cursor-pointer" onclick="switchTab('tong-quan')">
-                    <img id="header-logo" src="https://lh3.googleusercontent.com/d/1WIUE0aT_aE2Z_nU-hO5a6s_Q_8dY-32S" alt="Logo Khoa Hoá học" onerror="this.style.display='none'; document.getElementById('header-logo-fallback').classList.remove('hidden');" class="h-11 md:h-14 w-auto object-contain rounded">
-                    <div id="header-logo-fallback" class="hidden w-11 h-11 md:w-12 md:h-12 rounded-xl bg-[#0B3C78] text-white flex items-center justify-center shadow-sm shrink-0">
-                        <i class="fa-solid fa-flask-vial text-lg md:text-xl"></i>
-                    </div>
-                    <div>
-                        <p id="header-ten-truong" class="text-[11px] md:text-xs font-semibold text-slate-500 uppercase tracking-wider">TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH</p>
-                        <h1 id="header-ten-khoa" class="text-base md:text-xl font-extrabold text-[#0B3C78] tracking-tight">KHOA HOÁ HỌC</h1>
-                        <p id="header-tieu-de" class="text-xs md:text-sm font-medium text-[#C8102E]">Cổng thông tin Nghiên cứu Khoa học</p>
-                    </div>
-                </div>
-
-                <!-- Nút tác vụ nhanh trên Header -->
-                <div class="hidden md:flex items-center space-x-3">
-                    <button onclick="switchTab('thoi-gian-bieu')" class="text-xs font-semibold text-[#0B3C78] hover:bg-[#EBF3FA] px-3 py-2 rounded-lg transition flex items-center gap-1.5 border border-blue-200">
-                        <i class="fa-regular fa-calendar-check"></i> Lịch NCKH
-                    </button>
-                    <a id="btn-dang-ky-header" href="#cong-tuong-tac" onclick="switchTab('tong-quan')" class="bg-[#0B3C78] hover:bg-[#072752] text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow transition flex items-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> Đăng ký Đề tài Mới
-                    </a>
-                </div>
-            </div>
-
-            <!-- Thanh Menu Tabs (6 chuyên mục + Tổng quan) -->
-            <nav class="flex space-x-1 overflow-x-auto border-t border-slate-100 pt-1 no-scrollbar" id="main-nav">
-                <button onclick="switchTab('tong-quan')" id="tab-tong-quan" class="nav-btn active whitespace-nowrap px-3.5 py-2.5 text-sm font-semibold border-b-2 border-[#0B3C78] text-[#0B3C78] transition">
-                    <i class="fa-solid fa-chart-pie mr-1.5"></i>Tổng quan
-                </button>
-                <button onclick="switchTab('thong-bao')" id="tab-thong-bao" class="nav-btn whitespace-nowrap px-3.5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-[#0B3C78] transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-bullhorn"></i><span>Thông báo NCKH</span>
-                    <span id="nav-tb-badge" class="hidden text-[10px] font-bold bg-[#C8102E] text-white px-1.5 py-0.5 rounded-full">0</span>
-                </button>
-                <button onclick="switchTab('thoi-gian-bieu')" id="tab-thoi-gian-bieu" class="nav-btn whitespace-nowrap px-3.5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-[#0B3C78] transition">
-                    <i class="fa-solid fa-calendar-days mr-1.5"></i>Thời gian biểu
-                </button>
-                <button onclick="switchTab('de-tai')" id="tab-de-tai" class="nav-btn whitespace-nowrap px-3.5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-[#0B3C78] transition">
-                    <i class="fa-solid fa-flask mr-1.5"></i>Đề tài SV NCKH
-                </button>
-                <button onclick="switchTab('cong-trinh')" id="tab-cong-trinh" class="nav-btn whitespace-nowrap px-3.5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-[#0B3C78] transition">
-                    <i class="fa-solid fa-award mr-1.5"></i>Công trình & Giải thưởng
-                </button>
-                <button onclick="switchTab('seminar')" id="tab-seminar" class="nav-btn whitespace-nowrap px-3.5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-[#0B3C78] transition">
-                    <i class="fa-solid fa-microphone-lines mr-1.5"></i>Seminar & Hội thảo
-                </button>
-                <button onclick="switchTab('van-ban')" id="tab-van-ban" class="nav-btn whitespace-nowrap px-3.5 py-2.5 text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-[#0B3C78] transition">
-                    <i class="fa-solid fa-folder-open mr-1.5"></i>Văn bản & Biểu mẫu
-                </button>
-            </nav>
-        </div>
-    </header>
-
-    <!-- ===================================================================== -->
-    <!-- MÀN HÌNH ĐANG TẢI DỮ LIỆU (LOADING SPINNER)                           -->
-    <!-- ===================================================================== -->
-    <div id="loading-screen" class="flex-grow flex flex-col items-center justify-center py-20 px-4">
-        <div class="w-12 h-12 border-4 border-[#EBF3FA] border-t-[#0B3C78] rounded-full animate-spin mb-4"></div>
-        <p class="text-slate-600 font-medium text-sm text-center">Đang đồng bộ dữ liệu nghiên cứu khoa học từ hệ thống Khoa Hoá học...</p>
+  <!-- Thanh thông báo chạy (Ticker) -->
+  <div id="ticker-bar" class="hidden bg-amber-50 border-b border-amber-200/80 text-amber-950 text-xs sm:text-sm py-2 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-3">
+      <span class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500 text-white shadow-xs">
+        <i data-lucide="megaphone" class="w-3.5 h-3.5"></i>
+        TIN MỚI
+      </span>
+      <div class="ticker-wrapper overflow-hidden flex-1 relative">
+        <div id="ticker-content" class="ticker-track font-medium text-amber-900"></div>
+      </div>
     </div>
+  </div>
 
-    <!-- ===================================================================== -->
-    <!-- MÀN HÌNH BÁO LỖI KẾT NỐI (ERROR SCREEN)                               -->
-    <!-- ===================================================================== -->
-    <div id="error-screen" class="hidden flex-grow flex flex-col items-center justify-center py-20 px-4">
-        <div class="max-w-md w-full bg-white border border-red-200 rounded-2xl p-6 text-center shadow-sm">
-            <div class="w-12 h-12 rounded-full bg-red-50 text-[#C8102E] flex items-center justify-center mx-auto mb-3">
-                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+  <!-- Header (Đã loại bỏ nút Đăng ký đề tài trên Header) -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20 gap-4">
+        <!-- Logo & Định danh đơn vị -->
+        <a href="#" class="flex items-center gap-3 sm:gap-3.5 min-w-0 group">
+          <div id="header-logo-container" class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-hcmue-800 text-white flex items-center justify-center shrink-0 shadow-sm overflow-hidden border border-slate-200">
+            <svg class="w-7 h-7 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 3h6M10 3v5.5L4.5 18A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-3L14 8.5V3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7.5 14h9" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <p id="cfg-ten-truong" class="text-[11px] sm:text-xs font-semibold tracking-wider text-slate-500 uppercase truncate">
+              TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH
+            </p>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="cfg-ten-khoa" class="text-sm sm:text-base font-extrabold text-hcmue-800 tracking-tight">
+                KHOA HOÁ HỌC
+              </span>
+              <span class="hidden md:inline-block text-slate-300">|</span>
+              <span id="cfg-tieu-de-cong" class="hidden md:inline-block text-sm font-semibold text-blue-700 truncate">
+                CỔNG THÔNG TIN NGHIÊN CỨU KHOA HỌC
+              </span>
             </div>
-            <h3 class="text-base font-bold text-slate-800 mb-1">Không thể đồng bộ dữ liệu</h3>
-            <p id="error-message" class="text-xs text-slate-500 leading-relaxed mb-4">Vui lòng kiểm tra kết nối mạng hoặc quyền truy cập Web App.</p>
-            <button onclick="fetchPortalData()" class="inline-flex items-center gap-2 px-4 py-2 bg-[#0B3C78] hover:bg-[#072752] text-white text-xs font-semibold rounded-lg transition">
-                <i class="fa-solid fa-rotate-right"></i> Thử tải lại dữ liệu
+          </div>
+        </a>
+
+        <!-- Menu điều hướng chính -->
+        <nav class="hidden lg:flex items-center gap-1 xl:gap-2 text-sm font-semibold text-slate-600">
+          <a href="#tong-quan" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Tổng quan</a>
+          <a href="#thong-bao-su-kien" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Thông báo &amp; Seminar</a>
+          <a href="#thoi-gian-bieu" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Thời gian biểu</a>
+          <a href="#danh-muc-de-tai" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Danh mục đề tài</a>
+          <a href="#van-ban-bieu-mau" class="px-3 py-2 rounded-lg hover:text-hcmue-800 hover:bg-slate-100/80 transition">Văn bản &amp; Biểu mẫu</a>
+        </nav>
+
+        <!-- Nút đồng bộ dữ liệu & Menu mobile -->
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="btn-refresh-data" type="button" title="Đồng bộ dữ liệu mới nhất từ hệ thống"
+            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200/80 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Đồng bộ</span>
+          </button>
+
+          <button id="btn-mobile-menu" type="button" aria-label="Mở menu"
+            class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 border border-slate-200">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobile-menu" class="hidden lg:hidden pb-4 pt-2 border-t border-slate-100 space-y-1 text-sm font-semibold text-slate-700">
+        <a href="#tong-quan" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Tổng quan &amp; Thống kê</a>
+        <a href="#thong-bao-su-kien" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Thông báo &amp; Seminar</a>
+        <a href="#thoi-gian-bieu" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Thời gian biểu</a>
+        <a href="#danh-muc-de-tai" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Danh mục đề tài</a>
+        <a href="#van-ban-bieu-mau" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Văn bản &amp; Biểu mẫu</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Cảnh báo trạng thái tải / lỗi kết nối -->
+  <div id="status-banner" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+    <div id="status-banner-inner" class="rounded-xl p-4 text-sm flex items-center justify-between gap-3 border"></div>
+  </div>
+
+  <!-- Hero Banner & Cổng tương tác động -->
+  <section class="relative overflow-hidden bg-gradient-to-br from-hcmue-900 via-hcmue-800 to-blue-900 text-white">
+    <!-- Hoạ tiết phân tử nền -->
+    <div class="absolute inset-0 opacity-10 pointer-events-none"
+      style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 24px 24px;"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-amber-300 text-xs font-bold tracking-wide uppercase mb-4">
+          <i data-lucide="flask-conical" class="w-3.5 h-3.5"></i>
+          <span id="cfg-banner-nhan-phu">HOẠT ĐỘNG KHOA HỌC &amp; CÔNG NGHỆ</span>
+        </div>
+
+        <h1 id="cfg-banner-tieu-de" class="text-2xl sm:text-4xl lg:text-[40px] font-extrabold tracking-tight leading-tight mb-4">
+          Cổng thông tin Nghiên cứu Khoa học Sinh viên – Khoa Hoá học
+        </h1>
+
+        <p id="cfg-banner-mo-ta" class="text-sm sm:text-base text-blue-100/90 leading-relaxed mb-6">
+          Hệ thống quản lý, tra cứu dữ liệu đề tài nghiên cứu khoa học, công bố quốc tế, lịch tập huấn – hội nghị học thuật và biểu mẫu dành cho sinh viên, giảng viên Khoa Hoá học.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white/10 border border-white/15 text-blue-100 font-medium">
+            <i data-lucide="database" class="w-4 h-4 text-sky-300"></i>
+            Dữ liệu giai đoạn: <strong id="cfg-thong-ke-giai-doan" class="text-white ml-1">2019 – 2026</strong>
+          </span>
+          <a href="#danh-muc-de-tai" class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold transition shadow-sm">
+            <i data-lucide="search" class="w-4 h-4"></i>
+            Tra cứu danh mục đề tài
+          </a>
+        </div>
+      </div>
+
+      <!-- Cổng tương tác động (Render từ CMS_Cong_Tuong_Tac) -->
+      <div id="interactive-portals-grid" class="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+        <!-- Skeleton cards khi đang tải -->
+        <div class="rounded-2xl bg-white/10 p-5 h-44 skeleton"></div>
+        <div class="rounded-2xl bg-white/10 p-5 h-44 skeleton"></div>
+        <div class="rounded-2xl bg-white/10 p-5 h-44 skeleton"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
+
+    <!-- SECTION 1: TỔNG QUAN KPI & BIỂU ĐỒ THỐNG KÊ -->
+    <section id="tong-quan" class="scroll-mt-24 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Số liệu tổng hợp</span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Tổng quan Hoạt động Nghiên cứu Khoa học</h2>
+        </div>
+        <p class="text-xs text-slate-500">Tự động cập nhật từ cơ sở dữ liệu Khoa Hoá học</p>
+      </div>
+
+      <!-- 4 Thẻ KPI -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Tổng số đề tài</span>
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+              <i data-lucide="folder-kanban" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div id="kpi-total-projects" class="text-2xl sm:text-3xl font-extrabold text-slate-900">—</div>
+          <p id="kpi-total-projects-sub" class="text-xs text-slate-500 mt-1.5">Đang tải dữ liệu niên khoá...</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Đề tài đạt giải</span>
+            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <i data-lucide="award" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div id="kpi-total-awards" class="text-2xl sm:text-3xl font-extrabold text-slate-900">—</div>
+          <p id="kpi-total-awards-sub" class="text-xs text-slate-500 mt-1.5">Cấp Khoa, Trường &amp; Bộ</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Công bố khoa học</span>
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="book-open-check" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div id="kpi-total-publications" class="text-2xl sm:text-3xl font-extrabold text-slate-900">—</div>
+          <p id="kpi-total-publications-sub" class="text-xs text-slate-500 mt-1.5">Tạp chí quốc tế &amp; trong nước</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-xs hover:shadow-md transition">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">GVHD &amp; Sinh viên</span>
+            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
+              <i data-lucide="users" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div id="kpi-total-people" class="text-2xl sm:text-3xl font-extrabold text-slate-900">—</div>
+          <p id="kpi-total-people-sub" class="text-xs text-slate-500 mt-1.5">Lượt tham gia nghiên cứu</p>
+        </div>
+      </div>
+
+      <!-- 2 Biểu đồ Chart.js -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-xs">
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Biến động số lượng đề tài &amp; giải thưởng theo niên khoá</h3>
+              <p class="text-xs text-slate-500">Thống kê tổng hợp các niên khoá</p>
+            </div>
+          </div>
+          <div class="relative h-64 sm:h-72">
+            <canvas id="chart-yearly"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/90 shadow-xs">
+          <div class="flex items-center justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Phân bố theo Bộ môn / Lĩnh vực</h3>
+              <p class="text-xs text-slate-500">Cơ cấu chuyên ngành nghiên cứu</p>
+            </div>
+            <select id="chart-dept-year-filter" aria-label="Lọc biểu đồ theo niên khoá"
+              class="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="ALL">Tất cả niên khoá</option>
+            </select>
+          </div>
+          <div class="relative h-64 sm:h-72">
+            <canvas id="chart-department"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: THÔNG BÁO NCKH & SEMINAR / HỘI NGHỊ (Thẻ tối giản + Cuộn dọc tự động) -->
+    <section id="thong-bao-su-kien" class="scroll-mt-24 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Tin tức &amp; Học thuật</span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Thông báo NCKH &amp; Seminar Khoa học</h2>
+        </div>
+        <p class="text-xs text-slate-500">Rê chuột vào danh sách để tạm dừng cuộn tự động • Nhấp vào thẻ để xem chi tiết</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Cột Thông báo NCKH -->
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-2 bg-slate-50/70">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
+                <i data-lucide="bell-ring" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Thông báo NCKH</h3>
+                <p id="announcement-count-label" class="text-[11px] text-slate-500">Đang cập nhật...</p>
+              </div>
+            </div>
+            <button type="button" data-scroll-toggle="announcements-scroll"
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:text-blue-700 transition">
+              <i data-lucide="pause" class="w-3.5 h-3.5"></i>
+              <span>Tự cuộn</span>
             </button>
+          </div>
+
+          <div id="announcements-scroll" class="auto-scroll-box p-4 sm:p-5 space-y-3 max-h-[430px] overflow-y-auto">
+            <div class="h-24 rounded-xl skeleton"></div>
+            <div class="h-24 rounded-xl skeleton"></div>
+          </div>
         </div>
+
+        <!-- Cột Seminar & Hội nghị Khoa học -->
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs flex flex-col overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-2 bg-slate-50/70">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                <i data-lucide="presentation" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-slate-900">Seminar &amp; Hội nghị Khoa học</h3>
+                <p id="seminar-count-label" class="text-[11px] text-slate-500">Đang cập nhật...</p>
+              </div>
+            </div>
+            <button type="button" data-scroll-toggle="seminars-scroll"
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:text-blue-700 transition">
+              <i data-lucide="pause" class="w-3.5 h-3.5"></i>
+              <span>Tự cuộn</span>
+            </button>
+          </div>
+
+          <div id="seminars-scroll" class="auto-scroll-box p-4 sm:p-5 space-y-3 max-h-[430px] overflow-y-auto">
+            <div class="h-24 rounded-xl skeleton"></div>
+            <div class="h-24 rounded-xl skeleton"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: THỜI GIAN BIỂU ĐA NGUỒN (Tuần / Tháng / Danh sách) -->
+    <section id="thoi-gian-bieu" class="scroll-mt-24 space-y-6">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Kế hoạch &amp; Lịch trình tích hợp</span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Thời gian biểu Hoạt động NCKH</h2>
+          <p class="text-xs text-slate-500 mt-1">Đồng bộ tự động từ Lịch Khoa, Seminar/Hội nghị và các hạn mốc Thông báo</p>
+        </div>
+
+        <!-- Bộ điều khiển chế độ xem & lọc nguồn -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <select id="schedule-source-filter" aria-label="Lọc nguồn thời gian biểu"
+            class="text-xs sm:text-sm font-semibold bg-white border border-slate-200 rounded-xl px-3 py-2 text-slate-700 shadow-2xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="ALL">Tất cả nguồn sự kiện</option>
+            <option value="LICH_KHOA">Lịch hoạt động NCKH</option>
+            <option value="SEMINAR">Seminar &amp; Hội nghị</option>
+            <option value="THONG_BAO">Hạn mốc Thông báo</option>
+          </select>
+
+          <div class="inline-flex rounded-xl bg-slate-200/80 p-1 text-xs sm:text-sm font-bold">
+            <button type="button" data-cal-view="month"
+              class="cal-view-btn px-3 py-1.5 rounded-lg bg-white text-hcmue-800 shadow-2xs transition">
+              Theo Tháng
+            </button>
+            <button type="button" data-cal-view="week"
+              class="cal-view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+              Theo Tuần
+            </button>
+            <button type="button" data-cal-view="list"
+              class="cal-view-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+              Danh sách
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
+        <!-- Thanh điều hướng thời gian của Lịch -->
+        <div class="px-4 sm:px-6 py-4 border-b border-slate-100 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <button id="cal-prev-btn" type="button" aria-label="Trước"
+              class="p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button id="cal-today-btn" type="button"
+              class="px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition">
+              Hôm nay
+            </button>
+            <button id="cal-next-btn" type="button" aria-label="Sau"
+              class="p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+            <h3 id="cal-period-title" class="text-base sm:text-lg font-extrabold text-slate-900 ml-2">
+              Tháng 11, 2026
+            </h3>
+          </div>
+
+          <!-- Chú thích màu nguồn dữ liệu -->
+          <div class="flex flex-wrap items-center gap-3 text-xs font-medium text-slate-600">
+            <span class="inline-flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> Lịch Khoa
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> Seminar / Hội nghị
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span> Hạn mốc Thông báo
+            </span>
+          </div>
+        </div>
+
+        <!-- Vùng render nội dung Lịch (Month / Week / List) -->
+        <div id="calendar-container" class="p-3 sm:p-5">
+          <div class="h-64 rounded-xl skeleton"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: DANH MỤC ĐỀ TÀI NCKH & BỘ LỌC ĐA CHIỀU -->
+    <section id="danh-muc-de-tai" class="scroll-mt-24 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Cơ sở dữ liệu công trình</span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Danh mục Đề tài Nghiên cứu Khoa học</h2>
+        </div>
+
+        <button id="btn-export-csv" type="button"
+          class="self-start sm:self-auto inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 transition">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          Xuất CSV danh sách đang lọc
+        </button>
+      </div>
+
+      <!-- Khung bộ lọc đa chiều -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+          <!-- Ô tìm kiếm từ khoá -->
+          <div class="md:col-span-5 relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input id="filter-search" type="text"
+              placeholder="Tìm tên đề tài, sinh viên, GVHD, từ khoá..."
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+
+          <!-- Lọc Niên khoá -->
+          <div class="md:col-span-2">
+            <select id="filter-year" aria-label="Lọc theo niên khoá"
+              class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="ALL">Tất cả niên khoá</option>
+            </select>
+          </div>
+
+          <!-- Lọc Bộ môn / Lĩnh vực -->
+          <div class="md:col-span-3">
+            <select id="filter-dept" aria-label="Lọc theo bộ môn hoặc lĩnh vực"
+              class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="ALL">Tất cả Bộ môn / Lĩnh vực</option>
+            </select>
+          </div>
+
+          <!-- Lọc Giải thưởng -->
+          <div class="md:col-span-2">
+            <select id="filter-award" aria-label="Lọc theo giải thưởng"
+              class="w-full px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="ALL">Mọi giải thưởng</option>
+              <option value="ANY_AWARD">Có giải thưởng</option>
+              <option value="BO">Giải cấp Bộ</option>
+              <option value="TRUONG">Giải cấp Trường</option>
+              <option value="KHOA">Giải cấp Khoa</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <select id="filter-pub" aria-label="Lọc theo công bố khoa học"
+              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="ALL">Công bố khoa học: Tất cả</option>
+              <option value="ANY_PUB">Có công bố khoa học</option>
+              <option value="INTL">Bài báo quốc tế</option>
+              <option value="DOMESTIC">Bài báo trong nước</option>
+            </select>
+
+            <select id="filter-status" aria-label="Lọc theo trạng thái"
+              class="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="ALL">Trạng thái: Tất cả</option>
+            </select>
+
+            <button id="btn-reset-filters" type="button"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-rose-700 hover:bg-rose-50 transition">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              Đặt lại
+            </button>
+          </div>
+
+          <div class="text-xs sm:text-sm text-slate-600">
+            Hiển thị <strong id="projects-match-count" class="text-hcmue-800">0</strong> đề tài phù hợp
+          </div>
+        </div>
+      </div>
+
+      <!-- Lưới thẻ đề tài -->
+      <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+        <div class="h-48 rounded-2xl skeleton"></div>
+        <div class="h-48 rounded-2xl skeleton"></div>
+        <div class="h-48 rounded-2xl skeleton"></div>
+        <div class="h-48 rounded-2xl skeleton"></div>
+      </div>
+
+      <!-- Phân trang / Xem thêm -->
+      <div id="projects-pagination" class="flex items-center justify-center gap-3 pt-2"></div>
+    </section>
+
+    <!-- SECTION 5: VĂN BẢN & BIỂU MẪU -->
+    <section id="van-ban-bieu-mau" class="scroll-mt-24 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-blue-700">Tài nguyên &amp; Quy định</span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">Văn bản Quy định &amp; Biểu mẫu SVNCKH</h2>
+        </div>
+        <p class="text-xs text-slate-500">Biểu mẫu chuẩn phục vụ đăng ký, thuyết minh và báo cáo tổng kết</p>
+      </div>
+
+      <div id="documents-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="h-32 rounded-2xl skeleton"></div>
+        <div class="h-32 rounded-2xl skeleton"></div>
+        <div class="h-32 rounded-2xl skeleton"></div>
+        <div class="h-32 rounded-2xl skeleton"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div class="md:col-span-6 space-y-3">
+          <div class="flex items-center gap-3">
+            <div id="footer-logo-container" class="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden shrink-0 border border-white/10">
+              <i data-lucide="atom" class="w-6 h-6 text-amber-400"></i>
+            </div>
+            <div>
+              <p id="footer-ten-truong" class="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH
+              </p>
+              <h3 id="footer-ten-khoa" class="text-base font-extrabold text-white">
+                KHOA HOÁ HỌC
+              </h3>
+            </div>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md">
+            Cổng thông tin điện tử phục vụ quản lý, lưu trữ và lan toả hoạt động nghiên cứu khoa học của sinh viên và giảng viên Khoa Hoá học.
+          </p>
+        </div>
+
+        <div class="md:col-span-6 space-y-2.5 text-xs sm:text-sm">
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-3">Thông tin liên hệ</h4>
+          <p class="flex items-start gap-2.5">
+            <i data-lucide="map-pin" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+            <span id="cfg-dia-chi">280 An Dương Vương, Phường Chợ Quán, Thành phố Hồ Chí Minh</span>
+          </p>
+          <p class="flex items-center gap-2.5">
+            <i data-lucide="phone" class="w-4 h-4 text-amber-400 shrink-0"></i>
+            <span id="cfg-dien-thoai">Đang cập nhật</span>
+          </p>
+          <p class="flex items-center gap-2.5">
+            <i data-lucide="mail" class="w-4 h-4 text-amber-400 shrink-0"></i>
+            <a id="cfg-email" href="mailto:khoahoahoc@hcmue.edu.vn" class="hover:text-white underline decoration-slate-600">khoahoahoc@hcmue.edu.vn</a>
+          </p>
+          <p class="flex items-center gap-2.5">
+            <i data-lucide="globe" class="w-4 h-4 text-amber-400 shrink-0"></i>
+            <a id="cfg-fanpage" href="#" target="_blank" rel="noopener noreferrer" class="hover:text-white underline decoration-slate-600">Fanpage Khoa Hoá học – HCMUE</a>
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+        <p>© 2026 Khoa Hoá học – Trường Đại học Sư phạm Thành phố Hồ Chí Minh.</p>
+        <p>Vận hành trên nền tảng Google Workspace &amp; Apps Script CMS</p>
+      </div>
     </div>
+  </footer>
 
-    <!-- ===================================================================== -->
-    <!-- NỘI DUNG CHÍNH (MAIN CONTAINER)                                       -->
-    <!-- ===================================================================== -->
-    <main id="main-content" class="hidden flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-
-        <!-- ================================================================= -->
-        <!-- TAB 1: TỔNG QUAN & DASHBOARD                                      -->
-        <!-- ================================================================= -->
-        <section id="content-tong-quan" class="tab-content active space-y-8">
-            
-            <!-- Hero Banner -->
-            <div class="bg-gradient-to-r from-[#0B3C78] to-[#16529C] rounded-2xl p-6 md:p-8 text-white shadow-md relative overflow-hidden">
-                <div class="relative z-10 max-w-3xl">
-                    <span id="banner-badge" class="inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                        <i class="fa-solid fa-atom mr-1"></i> Dữ liệu minh bạch • Cập nhật thời gian thực
-                    </span>
-                    <h2 id="banner-title" class="text-2xl md:text-3xl font-bold mb-2 leading-tight">Hoạt động Nghiên cứu Khoa học Khoa Hoá học</h2>
-                    <p id="banner-desc" class="text-blue-100 text-sm md:text-base leading-relaxed">
-                        Hệ thống lưu trữ, tra cứu và tôn vinh các công trình nghiên cứu khoa học của sinh viên và giảng viên Khoa Hoá học, Trường Đại học Sư phạm Thành phố Hồ Chí Minh.
-                    </p>
-                </div>
-                <i class="fa-solid fa-flask-vial absolute -right-6 -bottom-6 text-[140px] text-white/10 pointer-events-none"></i>
-            </div>
-
-            <!-- 4 Thẻ Chỉ số Thống kê (KPI Cards) -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold text-slate-500 uppercase">Tổng số Đề tài</span>
-                        <div class="w-9 h-9 rounded-lg bg-[#EBF3FA] text-[#0B3C78] flex items-center justify-center"><i class="fa-solid fa-microscope"></i></div>
-                    </div>
-                    <p id="kpi-tong-de-tai" class="text-2xl md:text-3xl font-extrabold text-slate-800">0</p>
-                    <p class="text-xs text-slate-500 mt-1">Giai đoạn 2023 – nay</p>
-                </div>
-
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold text-slate-500 uppercase">Lượt SV Tham gia</span>
-                        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-user-graduate"></i></div>
-                    </div>
-                    <p id="kpi-tong-sv" class="text-2xl md:text-3xl font-extrabold text-slate-800">0</p>
-                    <p class="text-xs text-slate-500 mt-1">Chủ nhiệm & thành viên</p>
-                </div>
-
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold text-slate-500 uppercase">Đề tài Đạt Giải</span>
-                        <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center"><i class="fa-solid fa-trophy"></i></div>
-                    </div>
-                    <p id="kpi-tong-giai" class="text-2xl md:text-3xl font-extrabold text-slate-800">0</p>
-                    <p class="text-xs text-slate-500 mt-1">Cấp Khoa, Trường & Bộ</p>
-                </div>
-
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-xs font-semibold text-slate-500 uppercase">Công bố Khoa học</span>
-                        <div class="w-9 h-9 rounded-lg bg-rose-50 text-[#C8102E] flex items-center justify-center"><i class="fa-solid fa-book-journal-whills"></i></div>
-                    </div>
-                    <p id="kpi-tong-bai-bao" class="text-2xl md:text-3xl font-extrabold text-slate-800">0</p>
-                    <p class="text-xs text-slate-500 mt-1">Tạp chí Quốc tế & Trong nước</p>
-                </div>
-            </div>
-
-            <!-- Bảng tin Thông báo NCKH cuộn dọc tự động + Lịch hoạt động sắp tới -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Cột trái (7 cột): Bảng tin Thông báo NCKH (Tự động cuộn dọc) -->
-                <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-                    <div class="px-5 py-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 bg-slate-50/70">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-red-50 text-[#C8102E] flex items-center justify-center">
-                                <i class="fa-solid fa-bullhorn"></i>
-                            </span>
-                            <div>
-                                <h3 class="text-base font-bold text-[#0B3C78]">Thông báo Nghiên cứu Khoa học</h3>
-                                <p class="text-[11px] text-slate-500">Tự động cuộn dọc • Rê chuột vào để tạm dừng đọc</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button id="btn-toggle-auto-scroll" onclick="toggleAutoScroll()" class="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-[#0B3C78] hover:border-blue-300 transition flex items-center gap-1" title="Bật/Tắt cuộn tự động">
-                                <i class="fa-solid fa-pause text-[10px]"></i><span>Tạm dừng</span>
-                            </button>
-                            <button onclick="switchTab('thong-bao')" class="text-xs font-semibold text-[#0B3C78] hover:underline px-2 py-1.5">
-                                Tất cả <i class="fa-solid fa-arrow-right ml-0.5"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="overview-tb-scroll" class="p-4 space-y-3 max-h-[340px] overflow-y-auto custom-scrollbar relative">
-                        <!-- Render bởi JS -->
-                    </div>
-                </div>
-
-                <!-- Cột phải (5 cột): Mốc thời gian & Sự kiện sắp tới -->
-                <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-2 bg-slate-50/70">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-lg bg-[#EBF3FA] text-[#0B3C78] flex items-center justify-center">
-                                <i class="fa-solid fa-calendar-day"></i>
-                            </span>
-                            <div>
-                                <h3 class="text-base font-bold text-[#0B3C78]">Lịch Hoạt động & Hạn mốc</h3>
-                                <p class="text-[11px] text-slate-500">Đồng bộ từ Thời gian biểu, Seminar & Thông báo</p>
-                            </div>
-                        </div>
-                        <button onclick="switchTab('thoi-gian-bieu')" class="text-xs font-semibold text-[#0B3C78] hover:underline px-2 py-1.5">
-                            Xem lịch <i class="fa-solid fa-arrow-right ml-0.5"></i>
-                        </button>
-                    </div>
-                    <div id="overview-schedule-list" class="p-4 space-y-3 max-h-[340px] overflow-y-auto custom-scrollbar">
-                        <!-- Render bởi JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Biểu đồ Trực quan hoá -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-column text-[#0B3C78]"></i> Số lượng Đề tài theo Niên khoá
-                    </h3>
-                    <div class="h-64">
-                        <canvas id="chart-nien-khoa"></canvas>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-[#0B3C78]"></i> Cơ cấu Đề tài theo Lĩnh vực / Bộ môn
-                    </h3>
-                    <div class="h-64 flex justify-center">
-                        <canvas id="chart-linh-vuc"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cổng Tương tác & Dịch vụ Trực tuyến (Đọc động từ CMS_Cong_Tuong_Tac) -->
-            <div id="cong-tuong-tac" class="pt-2">
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-[#0B3C78] flex items-center gap-2">
-                            <i class="fa-solid fa-rocket"></i> Cổng Tương tác & Dịch vụ Trực tuyến
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Kênh kết nối nhanh dành cho Sinh viên, Giảng viên và Trợ lý Nghiên cứu Khoa học</p>
-                    </div>
-                </div>
-                <div id="cong-tuong-tac-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Render động từ sheet CMS_Cong_Tuong_Tac bởi JS -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ================================================================= -->
-        <!-- TAB 2: THÔNG BÁO NCKH (DẠNG THẺ TỐI GIẢN & XEM CHI TIẾT)          -->
-        <!-- ================================================================= -->
-        <section id="content-thong-bao" class="tab-content space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                <div>
-                    <h2 class="text-xl font-bold text-[#0B3C78]">Thông báo Nghiên cứu Khoa học</h2>
-                    <p class="text-xs text-slate-500 mt-1">Cập nhật kế hoạch triển khai, thông báo xét duyệt, nghiệm thu và các cuộc thi học thuật của Khoa Hoá học</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="btn-tb-tab-autoscroll" onclick="toggleTabTbAutoScroll()" class="text-xs font-medium px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-[#0B3C78] hover:border-blue-300 transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrows-up-down text-[#0B3C78]"></i><span>Cuộn tự động: Tắt</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Thanh công cụ tìm kiếm & lọc thông báo -->
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
-                <div class="lg:col-span-6 relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-                    <input type="text" id="tb-search" onkeyup="renderThongBaoTab()" placeholder="Tìm tiêu đề thông báo, nội dung, mã thông báo..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0B3C78] focus:outline-none">
-                </div>
-                <div class="lg:col-span-3">
-                    <select id="tb-filter-loai" onchange="renderThongBaoTab()" class="w-full py-2 px-3 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0B3C78] focus:outline-none bg-white">
-                        <option value="ALL">Tất cả phân loại</option>
-                    </select>
-                </div>
-                <div class="lg:col-span-3 flex items-center">
-                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700 select-none px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 w-full justify-center hover:bg-slate-100 transition">
-                        <input type="checkbox" id="tb-filter-pinned" onchange="renderThongBaoTab()" class="rounded text-[#C8102E] focus:ring-[#C8102E]">
-                        <span>Chỉ xem tin ghim nổi bật</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Danh sách thẻ Thông báo NCKH (Hỗ trợ cuộn dọc khi danh sách dài) -->
-            <div id="thong-bao-scroll-container" class="max-h-[72vh] overflow-y-auto custom-scrollbar pr-1">
-                <div id="thong-bao-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <!-- Render bởi JS -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ================================================================= -->
-        <!-- TAB 3: THỜI GIAN BIỂU (TÍCH HỢP 3 NGUỒN - XEM TUẦN / THÁNG)       -->
-        <!-- ================================================================= -->
-        <section id="content-thoi-gian-bieu" class="tab-content space-y-6">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-xl font-bold text-[#0B3C78]">Thời gian biểu Hoạt động Khoa học</h2>
-                    <p class="text-xs text-slate-500 mt-1">Tích hợp tự động lịch hoạt động NCKH, chuỗi Seminar – Hội thảo và các hạn mốc từ Thông báo của Khoa Hoá học</p>
-                </div>
-
-                <!-- Chuyển đổi chế độ xem: Tuần / Tháng / Danh sách -->
-                <div class="inline-flex rounded-xl bg-slate-200/80 p-1 self-start">
-                    <button onclick="setScheduleView('week')" id="btn-view-week" class="sched-view-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-white text-[#0B3C78] shadow-sm transition">
-                        <i class="fa-solid fa-table-columns mr-1"></i> Theo Tuần
-                    </button>
-                    <button onclick="setScheduleView('month')" id="btn-view-month" class="sched-view-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-[#0B3C78] transition">
-                        <i class="fa-solid fa-calendar-days mr-1"></i> Theo Tháng
-                    </button>
-                    <button onclick="setScheduleView('list')" id="btn-view-list" class="sched-view-btn px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-[#0B3C78] transition">
-                        <i class="fa-solid fa-list-ul mr-1"></i> Danh sách
-                    </button>
-                </div>
-            </div>
-
-            <!-- Thanh điều hướng ngày & Bộ lọc nguồn dữ liệu -->
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                    <!-- Điều hướng thời gian -->
-                    <div class="flex items-center gap-2">
-                        <button onclick="navigateSchedule(-1)" class="w-9 h-9 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 flex items-center justify-center transition" title="Kỳ trước">
-                            <i class="fa-solid fa-chevron-left text-xs"></i>
-                        </button>
-                        <button onclick="resetScheduleToday()" class="px-3 py-2 rounded-lg border border-blue-200 bg-[#EBF3FA] hover:bg-blue-100 text-[#0B3C78] text-xs font-bold transition">
-                            Hôm nay
-                        </button>
-                        <button onclick="navigateSchedule(1)" class="w-9 h-9 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 flex items-center justify-center transition" title="Kỳ sau">
-                            <i class="fa-solid fa-chevron-right text-xs"></i>
-                        </button>
-                        <span id="schedule-period-label" class="ml-2 text-sm md:text-base font-bold text-slate-800">
-                            <!-- VD: Tuần 23/11/2026 – 29/11/2026 -->
-                        </span>
-                    </div>
-
-                    <!-- Chú thích màu theo nguồn -->
-                    <div class="flex flex-wrap items-center gap-3 text-xs">
-                        <span class="inline-flex items-center gap-1.5 text-slate-600">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#0B3C78]"></span> Lịch hoạt động NCKH
-                        </span>
-                        <span class="inline-flex items-center gap-1.5 text-slate-600">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> Seminar & Hội thảo
-                        </span>
-                        <span class="inline-flex items-center gap-1.5 text-slate-600">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#C8102E]"></span> Hạn mốc / Thông báo
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Bộ lọc tìm kiếm & nguồn -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
-                    <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
-                        <input type="text" id="tgb-search" onkeyup="renderScheduleView()" placeholder="Tìm tên hoạt động, địa điểm, phụ trách..." class="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0B3C78] focus:outline-none">
-                    </div>
-                    <div>
-                        <select id="tgb-filter-source" onchange="renderScheduleView()" class="w-full py-1.5 px-3 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0B3C78] focus:outline-none bg-white">
-                            <option value="ALL">Tất cả nguồn dữ liệu</option>
-                            <option value="MANUAL">Lịch hoạt động NCKH (Nhập trực tiếp)</option>
-                            <option value="SEMINAR">Đồng bộ từ Seminar & Hội thảo</option>
-                            <option value="THONGBAO">Đồng bộ hạn mốc từ Thông báo</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select id="tgb-filter-type" onchange="renderScheduleView()" class="w-full py-1.5 px-3 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0B3C78] focus:outline-none bg-white">
-                            <option value="ALL">Tất cả phân loại hoạt động</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Khung hiển thị Thời gian biểu (Tuần / Tháng / Danh sách) -->
-            <div id="schedule-container" class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <!-- Render bởi JS -->
-            </div>
-        </section>
-
-        <!-- ================================================================= -->
-        <!-- TAB 4: TRA CỨU ĐỀ TÀI SV NCKH                                     -->
-        <!-- ================================================================= -->
-        <section id="content-de-tai" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-xl font-bold text-[#0B3C78]">Danh mục Đề tài Sinh viên Nghiên cứu Khoa học</h2>
-                <p class="text-xs text-slate-500 mt-1">Tra cứu toàn diện theo tên đề tài, sinh viên thực hiện, giảng viên hướng dẫn, chuyên ngành và kết quả nghiệm thu</p>
-            </div>
-
-            <!-- Thanh công cụ Tìm kiếm & Bộ lọc -->
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
-                    <!-- Ô tìm kiếm từ khoá -->
-                    <div class="md:col-span-5 relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
-                        <input type="text" id="filter-search" onkeyup="applyFilters()" placeholder="Tìm tên đề tài, tên sinh viên, GVHD..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0B3C78] focus:outline-none">
-                    </div>
-                    <!-- Lọc Niên khoá -->
-                    <div class="md:col-span-2">
-                        <select id="filter-nien-khoa" onchange="applyFilters()" class="w-full py-2 px-3 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0B3C78] focus:outline-none bg-white">
-                            <option value="ALL">Tất cả Niên khoá</option>
-                        </select>
-                    </div>
-                    <!-- Lọc Bộ môn -->
-                    <div class="md:col-span-3">
-                        <select id="filter-bo-mon" onchange="applyFilters()" class="w-full py-2 px-3 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0B3C78] focus:outline-none bg-white">
-                            <option value="ALL">Tất cả Bộ môn / Lĩnh vực</option>
-                        </select>
-                    </div>
-                    <!-- Lọc Giải thưởng -->
-                    <div class="md:col-span-2">
-                        <select id="filter-giai" onchange="applyFilters()" class="w-full py-2 px-3 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0B3C78] focus:outline-none bg-white">
-                            <option value="ALL">Tất cả Giải thưởng</option>
-                            <option value="CO_GIAI">Có đạt giải</option>
-                            <option value="NHAT">Giải Nhất</option>
-                            <option value="NHI">Giải Nhì</option>
-                            <option value="BA">Giải Ba</option>
-                            <option value="KK">Giải Khuyến khích</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-between items-center text-xs text-slate-500 pt-1">
-                    <span>Hiển thị <strong id="count-filtered" class="text-[#0B3C78]">0</strong> đề tài phù hợp</span>
-                    <button onclick="resetFilters()" class="text-[#C8102E] hover:underline font-medium"><i class="fa-solid fa-rotate-left mr-1"></i>Xoá bộ lọc</button>
-                </div>
-            </div>
-
-            <!-- Danh sách Đề tài dạng Bảng (Desktop) & Card (Mobile) -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                <th class="py-3.5 px-4 w-24">Niên khoá</th>
-                                <th class="py-3.5 px-4">Tên đề tài & Nhóm thực hiện</th>
-                                <th class="py-3.5 px-4 w-48">Giảng viên Hướng dẫn</th>
-                                <th class="py-3.5 px-4 w-40">Lĩnh vực</th>
-                                <th class="py-3.5 px-4 w-44">Thành tích / Trạng thái</th>
-                                <th class="py-3.5 px-4 w-24 text-center">Chi tiết</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-de-tai-body" class="divide-y divide-slate-100 text-sm">
-                            <!-- Dữ liệu được render bởi JS -->
-                        </tbody>
-                    </table>
-                </div>
-                <div id="empty-state" class="hidden py-12 text-center">
-                    <i class="fa-regular fa-folder-open text-4xl text-slate-300 mb-3"></i>
-                    <p class="text-slate-500 font-medium text-sm">Không tìm thấy đề tài nào phù hợp với điều kiện lọc.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================================================================= -->
-        <!-- TAB 5: CÔNG TRÌNH & GIẢI THƯỞNG NỔI BẬT                           -->
-        <!-- ================================================================= -->
-        <section id="content-cong-trinh" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-xl font-bold text-[#0B3C78]">Bảng vàng Giải thưởng & Công bố Khoa học</h2>
-                <p class="text-xs text-slate-500 mt-1">Tôn vinh các đề tài xuất sắc đạt giải cấp Khoa, Trường, Bộ và các bài báo khoa học tiêu biểu</p>
-            </div>
-            <div id="grid-cong-trinh" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Render bởi JS -->
-            </div>
-        </section>
-
-        <!-- ================================================================= -->
-        <!-- TAB 6: SEMINAR & HỘI THẢO KHOA HỌC                                -->
-        <!-- ================================================================= -->
-        <section id="content-seminar" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-xl font-bold text-[#0B3C78]">Chuỗi Seminar Chuyên môn & Hội nghị Khoa học</h2>
-                <p class="text-xs text-slate-500 mt-1">Thông tin các buổi sinh hoạt học thuật, báo cáo chuyên đề và hội nghị Sinh viên Nghiên cứu Khoa học</p>
-            </div>
-            <div id="list-seminar" class="space-y-4">
-                <!-- Render bởi JS -->
-            </div>
-        </section>
-
-        <!-- ================================================================= -->
-        <!-- TAB 7: VĂN BẢN & BIỂU MẪU                                         -->
-        <!-- ================================================================= -->
-        <section id="content-van-ban" class="tab-content space-y-6">
-            <div>
-                <h2 class="text-xl font-bold text-[#0B3C78]">Hệ thống Văn bản Quy định & Biểu mẫu NCKH</h2>
-                <p class="text-xs text-slate-500 mt-1">Tài liệu hướng dẫn quy trình đăng ký, thuyết minh, báo cáo tiến độ và nghiệm thu đề tài</p>
-            </div>
-            <div id="grid-van-ban" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Render bởi JS -->
-            </div>
-        </section>
-
-    </main>
-
-    <!-- ===================================================================== -->
-    <!-- MODAL CHI TIẾT ĐỀ TÀI (POPUP VIEW)                                    -->
-    <!-- ===================================================================== -->
-    <div id="detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 animate-[fadeIn_0.2s_ease-out] custom-scrollbar">
-            <div class="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex justify-between items-center z-10">
-                <span id="modal-nien-khoa" class="text-xs font-bold bg-[#EBF3FA] text-[#0B3C78] px-3 py-1 rounded-full">Niên khoá</span>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-            <div class="p-6 space-y-5">
-                <h3 id="modal-ten-de-tai" class="text-lg md:text-xl font-bold text-slate-900 leading-snug">Tên đề tài</h3>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm">
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium">Giảng viên hướng dẫn</p>
-                        <p id="modal-gvhd" class="font-bold text-[#0B3C78] mt-0.5">-</p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-slate-500 font-medium">Bộ môn / Lĩnh vực</p>
-                        <p id="modal-bo-mon" class="font-semibold text-slate-800 mt-0.5">-</p>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nhóm Sinh viên Thực hiện</h4>
-                    <div id="modal-thanh-vien" class="space-y-2">
-                        <!-- Danh sách thành viên -->
-                    </div>
-                </div>
-
-                <div id="modal-giai-section">
-                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Thành tích & Giải thưởng</h4>
-                    <div id="modal-giai-badges" class="flex flex-wrap gap-2"></div>
-                </div>
-
-                <div id="modal-tom-tat-section" class="hidden">
-                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tóm tắt nội dung nghiên cứu</h4>
-                    <p id="modal-tom-tat" class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 whitespace-pre-line"></p>
-                </div>
-
-                <div id="modal-link-section" class="pt-2 hidden">
-                    <a id="modal-link-btn" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center w-full py-2.5 px-4 bg-[#0B3C78] hover:bg-[#072752] text-white text-sm font-semibold rounded-lg transition">
-                        <i class="fa-solid fa-file-pdf mr-2"></i> Xem Quyết định công nhận / Kỷ yếu
-                    </a>
-                </div>
-            </div>
+  <!-- MODAL 1: CHI TIẾT ĐỀ TÀI NCKH -->
+  <div id="project-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span id="modal-proj-year" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-hcmue-800 text-white"></span>
+          <span id="modal-proj-code" class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold bg-slate-200 text-slate-800"></span>
+          <span id="modal-proj-status" class="px-2.5 py-1 rounded-lg text-xs font-semibold"></span>
         </div>
+        <button type="button" data-close-modal="project-modal" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="modal-proj-body" class="p-5 sm:p-6 overflow-y-auto space-y-5 text-sm"></div>
     </div>
+  </div>
 
-    <!-- ===================================================================== -->
-    <!-- MODAL ĐỌC CHI TIẾT THÔNG BÁO / SỰ KIỆN RIÊNG BIỆT                     -->
-    <!-- ===================================================================== -->
-    <div id="article-detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 animate-[fadeIn_0.2s_ease-out] custom-scrollbar">
-            <div class="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex justify-between items-center gap-3 z-10">
-                <div class="flex flex-wrap items-center gap-2">
-                    <span id="article-modal-category" class="text-xs font-bold bg-[#EBF3FA] text-[#0B3C78] px-3 py-1 rounded-full">Phân loại</span>
-                    <span id="article-modal-pinned" class="hidden text-xs font-bold bg-red-50 text-[#C8102E] px-2.5 py-1 rounded-full">
-                        <i class="fa-solid fa-thumbtack mr-1"></i>Nổi bật
-                    </span>
-                </div>
-                <button onclick="closeArticleModal()" class="text-slate-400 hover:text-slate-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-100 transition shrink-0">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <div class="p-6 md:p-8 space-y-5">
-                <div>
-                    <h3 id="article-modal-title" class="text-xl md:text-2xl font-extrabold text-slate-900 leading-snug">Tiêu đề bài viết</h3>
-                    <div id="article-modal-meta" class="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-500 mt-3 pt-3 border-t border-slate-100">
-                        <!-- Ngày đăng, Ngày diễn ra, Địa điểm, Đơn vị phụ trách -->
-                    </div>
-                </div>
-
-                <div id="article-modal-summary-box" class="hidden bg-blue-50/70 border-l-4 border-[#0B3C78] p-4 rounded-r-xl">
-                    <p id="article-modal-summary" class="text-sm font-medium text-slate-800 leading-relaxed"></p>
-                </div>
-
-                <div class="prose max-w-none">
-                    <div id="article-modal-body" class="text-sm md:text-[15px] text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50/70 p-5 rounded-xl border border-slate-100">
-                        <!-- Nội dung chi tiết -->
-                    </div>
-                </div>
-
-                <div id="article-modal-action-wrap" class="hidden pt-2 flex flex-wrap items-center justify-end gap-3">
-                    <a id="article-modal-action-btn" href="#" target="_blank" rel="noopener" class="inline-flex items-center justify-center py-2.5 px-5 bg-[#0B3C78] hover:bg-[#072752] text-white text-sm font-semibold rounded-lg shadow transition">
-                        <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i><span id="article-modal-action-text">Xem chi tiết / Đăng ký</span>
-                    </a>
-                </div>
-            </div>
-        </div>
+  <!-- MODAL 2: CHI TIẾT THÔNG BÁO -->
+  <div id="announcement-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50">
+        <span id="modal-ann-badge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-800">Thông báo</span>
+        <button type="button" data-close-modal="announcement-modal" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="modal-ann-body" class="p-5 sm:p-6 overflow-y-auto space-y-4 text-sm"></div>
     </div>
+  </div>
 
-    <!-- ===================================================================== -->
-    <!-- FOOTER                                                                -->
-    <!-- ===================================================================== -->
-    <footer class="bg-[#072752] text-slate-300 mt-12 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
-            <div class="text-center md:text-left">
-                <p id="footer-ten-don-vi" class="font-bold text-white text-sm">KHOA HOÁ HỌC - TRƯỜNG ĐẠI HỌC SƯ PHẠM THÀNH PHỐ HỒ CHÍ MINH</p>
-                <p id="footer-dia-chi" class="mt-1 text-slate-400">Địa chỉ: Phòng A.303, 280 An Dương Vương, Quận 5, TP. Hồ Chí Minh</p>
-            </div>
-            <div class="text-center md:text-right text-slate-400">
-                <p>Hệ thống Cổng thông tin Nghiên cứu Khoa học</p>
-                <p id="footer-updated" class="mt-1">Vận hành & Quản lý dữ liệu tập trung trực tuyến</p>
-            </div>
-        </div>
-    </footer>
+  <!-- MODAL 3: CHI TIẾT SỰ KIỆN / SEMINAR / THỜI GIAN BIỂU -->
+  <div id="event-modal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 bg-slate-50">
+        <span id="modal-evt-badge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-blue-100 text-blue-800">Sự kiện</span>
+        <button type="button" data-close-modal="event-modal" class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="modal-evt-body" class="p-5 sm:p-6 overflow-y-auto space-y-4 text-sm"></div>
+    </div>
+  </div>
 
-    <!-- Script chính -->
-    <script src="js/app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
